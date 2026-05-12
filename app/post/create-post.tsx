@@ -1,10 +1,8 @@
-import { Colors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     FlatList,
     Image,
@@ -12,7 +10,6 @@ import {
     Modal,
     Platform,
     ScrollView,
-    StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
@@ -28,6 +25,7 @@ import { createPost } from "../../services/post-service";
 import provinceData from "../../assets/data/provinces.json";
 import wardData from "../../assets/data/wards.json";
 
+import LoadingOverlay from "@/components/loading-layout";
 import * as Location from 'expo-location';
 import { isMatchLocation } from "../../services/utilities-service";
 
@@ -43,7 +41,7 @@ type Coords = {
 
 export default function CreatePostScreen() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -101,7 +99,7 @@ export default function CreatePostScreen() {
             return;
         }
 
-        setLoading(true);
+        setIsLoading(true);
         try {
             await createPost({
                 title,
@@ -123,7 +121,7 @@ export default function CreatePostScreen() {
             console.error('Lỗi lúc đăng bài: ' + error);
             Alert.alert('Lỗi', 'Không thể đăng bài. Vui lòng thử lại.');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -204,9 +202,6 @@ export default function CreatePostScreen() {
                 }
 
             }
-
-            // console.log(geocode);
-
         } catch (error) {
             console.error('Lỗi khi lấy vị trí hiện tại: ' + error);
             Alert.alert('Lỗi', 'Không thể lấy vị trí hiện tại. Vui lòng thử lại.');
@@ -222,71 +217,67 @@ export default function CreatePostScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView className="flex-1 bg-white">
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <View style={styles.header}>
+                <View className="flex-row justify-between items-center px-5 py-[15px] border-b border-[#eee]">
                     <TouchableOpacity onPress={() => router.back()}>
                         <Ionicons name="close" size={28} color="#333" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Đăng tin mới</Text>
-                    <TouchableOpacity onPress={handleSubmit} disabled={loading}>
-                        {loading ? (
-                            <ActivityIndicator size="small" color={Colors.light.tint} />
-                        ) : (
-                            <Text style={styles.postButton}>Đăng</Text>
-                        )}
+                    <Text className="text-[18px] font-bold text-[#333]">Đăng tin mới</Text>
+                    <TouchableOpacity onPress={handleSubmit} disabled={isLoading}>
+                        <Text className="text-base font-bold text-[#007AFF]">Đăng</Text>
                     </TouchableOpacity>
                 </View>
 
-                <ScrollView contentContainerStyle={styles.content}>
+                <ScrollView contentContainerStyle={{ padding: 20 }}>
 
-                    <View style={styles.typeSelector}>
+                    <View className="flex-row mb-5 gap-[15px]">
                         <TouchableOpacity
-                            style={[styles.typeButton, type === 'lost' && styles.typeButtonLost]}
+                            className={`flex-1 py-3 rounded-[10px] bg-[#f5f5f5] items-center border border-transparent ${type === 'lost' ? 'bg-[#ffebee] border-[#FF3B30]' : ''}`}
                             onPress={() => setType('lost')}
                         >
-                            <Text style={[styles.typeText, type === 'lost' && styles.typeTextActive]}>MẤT ĐỒ</Text>
+                            <Text className={`font-bold text-[#999] ${type === 'lost' ? 'text-[#333]' : ''}`}>MẤT ĐỒ</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.typeButton, type === 'found' && styles.typeButtonFound]}
+                            className={`flex-1 py-3 rounded-[10px] bg-[#f5f5f5] items-center border border-transparent ${type === 'found' ? 'bg-[#e3f2fd] border-[#007AFF]' : ''}`}
                             onPress={() => setType('found')}
                         >
-                            <Text style={[styles.typeText, type === 'found' && styles.typeTextActive]}>NHẶT ĐƯỢC</Text>
+                            <Text className={`font-bold text-[#999] ${type === 'found' ? 'text-[#333]' : ''}`}>NHẶT ĐƯỢC</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+                    <TouchableOpacity className="w-full h-[200px] bg-[#f9f9f9] rounded-[15px] mb-[25px] border border-[#eee] border-dashed overflow-hidden" onPress={pickImage}>
                         {image ? (
-                            <Image source={{ uri: image }} style={styles.previewImage} />
+                            <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
                         ) : (
-                            <View style={styles.imagePlaceholder}>
+                            <View className="flex-1 justify-center items-center">
                                 <Ionicons name="camera" size={40} color="#ccc" />
-                                <Text style={styles.imageText}>Thêm ảnh</Text>
+                                <Text className="text-[#999] mt-[5px]">Thêm ảnh</Text>
                             </View>
                         )}
                     </TouchableOpacity>
 
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Khu vực</Text>
-                        <View style={{ gap: 10 }}>
+                    <View className="mb-5">
+                        <Text className="text-sm font-semibold text-[#333] mb-2">Khu vực</Text>
+                        <View className="gap-[10px]">
                             <TouchableOpacity
-                                style={styles.selectBox}
+                                className="flex-row justify-between items-center bg-[#f9f9f9] p-3 rounded-[10px] border border-[#eee]"
                                 onPress={() => openAddressModal('province')}
                             >
-                                <Text style={[styles.selectText, !selectedProvince && styles.placeholderText]}>
+                                <Text className={`text-sm ${!selectedProvince ? 'text-[#999]' : 'text-[#333]'}`}>
                                     {selectedProvince ? selectedProvince.name : 'Chọn Tỉnh/Thành phố'}
                                 </Text>
                                 <Ionicons name="chevron-down" size={16} color="#666" />
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.selectBox}
+                                className="flex-row justify-between items-center bg-[#f9f9f9] p-3 rounded-[10px] border border-[#eee]"
                                 onPress={() => openAddressModal('ward')}
                             >
-                                <Text style={[styles.selectText, !selectedWard && styles.placeholderText]}>
+                                <Text className={`text-sm ${!selectedWard ? 'text-[#999]' : 'text-[#333]'}`}>
                                     {selectedWard ? selectedWard.name : 'Chọn Phường/Xã (Cơ sở)'}
                                 </Text>
                                 <Ionicons name="chevron-down" size={16} color="#666" />
@@ -294,30 +285,30 @@ export default function CreatePostScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Tiêu đề</Text>
+                    <View className="mb-5">
+                        <Text className="text-sm font-semibold text-[#333] mb-2">Tiêu đề</Text>
                         <TextInput
-                            style={styles.input}
+                            className="bg-[#f9f9f9] p-3 rounded-[10px] border border-[#eee] text-base"
                             placeholder="Ví dụ: Tìm thấy ví da màu nâu"
                             value={title}
                             onChangeText={setTitle}
                         />
                     </View>
 
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Ghim định vị: {coords ? <Text style={{ color: 'green' }}>Đã chọn</Text> : <Text style={{ color: 'red' }}>Chưa chọn</Text>}</Text>
-                        <TouchableOpacity style={[styles.selectBox, { backgroundColor: '#666' }]} onPress={() => openMap()} >
-                            <Text style={{ color: 'white' }}>Chọn vị trí</Text>
+                    <View className="mb-5">
+                        <Text className="text-sm font-semibold text-[#333] mb-2">Ghim định vị: {coords ? <Text className="text-green-600">Đã chọn</Text> : <Text className="text-red-600">Chưa chọn</Text>}</Text>
+                        <TouchableOpacity className="flex-row justify-between items-center bg-[#666] p-3 rounded-[10px] border border-[#eee]" onPress={() => openMap()} >
+                            <Text className="text-white">Chọn vị trí</Text>
                         </TouchableOpacity>
                     </View>
 
 
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Địa điểm</Text>
-                        <View style={styles.locationInput}>
-                            <Ionicons name="location-outline" size={20} color="#666" style={{ marginRight: 8 }} />
+                    <View className="mb-5">
+                        <Text className="text-sm font-semibold text-[#333] mb-2">Địa điểm</Text>
+                        <View className="flex-row items-center bg-[#f9f9f9] p-3 rounded-[10px] border border-[#eee]">
+                            <Ionicons name="location-outline" size={20} color="#666" className="mr-2" />
                             <TextInput
-                                style={{ flex: 1 }}
+                                className="flex-1"
                                 placeholder="Ví dụ: Canteen B4, Thư viện..."
                                 value={location}
                                 onChangeText={setLocation}
@@ -325,10 +316,11 @@ export default function CreatePostScreen() {
                         </View>
                     </View>
 
-                    <View style={styles.formGroup}>
-                        <Text style={styles.label}>Mô tả chi tiết</Text>
+                    <View className="mb-5">
+                        <Text className="text-sm font-semibold text-[#333] mb-2">Mô tả chi tiết</Text>
                         <TextInput
-                            style={[styles.input, styles.textArea]}
+                            className="bg-[#f9f9f9] p-3 rounded-[10px] border border-[#eee] text-base h-[100px]"
+                            style={{ textAlignVertical: 'top' }}
                             placeholder="Mô tả thêm về đặc điểm, thời gian..."
                             multiline
                             numberOfLines={4}
@@ -339,13 +331,13 @@ export default function CreatePostScreen() {
 
                 </ScrollView>
                 <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>
+                    <View className="flex-1 bg-white pt-5">
+                        <View className="flex-row justify-between items-center px-5 pb-[15px] border-b border-[#eee]">
+                            <Text className="text-[18px] font-bold">
                                 {modalType === 'province' ? 'Chọn Tỉnh/Thành phố' : 'Chọn Phường/Xã'}
                             </Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Text style={styles.closeButton}>Đóng</Text>
+                                <Text className="text-[#007AFF] text-base font-semibold">Đóng</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -354,10 +346,10 @@ export default function CreatePostScreen() {
                             keyExtractor={(item) => item.code.toString()}
                             renderItem={({ item }) => (
                                 <TouchableOpacity
-                                    style={styles.modalItem}
+                                    className="flex-row justify-between items-center py-[15px] px-5 border-b border-[#f5f5f5]"
                                     onPress={() => handleSelectAddress(item)}
                                 >
-                                    <Text style={styles.modalItemText}>{item.name}</Text>
+                                    <Text className="text-base text-[#333]">{item.name}</Text>
                                     <Ionicons name="chevron-forward" size={20} color="#ccc" />
                                 </TouchableOpacity>
                             )}
@@ -365,9 +357,9 @@ export default function CreatePostScreen() {
                     </View>
                 </Modal>
                 <Modal visible={showMap} animationType="slide">
-                    <View style={{ flex: 1 }}>
+                    <View className="flex-1">
                         <MapView
-                            style={{ flex: 1 }}
+                            className="flex-1"
                             initialRegion={coords ? {
                                 latitude: coords.latitude,
                                 longitude: coords.longitude,
@@ -384,192 +376,25 @@ export default function CreatePostScreen() {
                             {coords && <Marker coordinate={coords} title="Vị trí vật phẩm" />}
                         </MapView>
 
-                        <View style={styles.mapActions}>
+                        <View className="absolute bottom-[30px] left-5 right-5 flex-row justify-between gap-[15px]">
                             <TouchableOpacity
-                                style={[styles.mapBtn, { backgroundColor: '#fff' }]}
+                                className="flex-1 p-[15px] rounded-[10px] items-center shadow-md elevation-5 bg-white"
                                 onPress={() => setShowMap(false)}
                             >
-                                <Text style={{ color: '#333' }}>Hủy</Text>
+                                <Text className="text-[#333]">Hủy</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.mapBtn, { backgroundColor: Colors.light.tint }]}
+                                className="flex-1 p-[15px] rounded-[10px] items-center shadow-md elevation-5 bg-[#007AFF]"
                                 onPress={() => setShowMap(false)}
                             >
-                                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Xác nhận</Text>
+                                <Text className="text-white font-bold">Xác nhận</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
             </KeyboardAvoidingView>
+            <LoadingOverlay isLoading={isLoading} />
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    postButton: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: Colors.light.tint,
-    },
-    content: {
-        padding: 20,
-    },
-    typeSelector: {
-        flexDirection: 'row',
-        marginBottom: 20,
-        gap: 15,
-    },
-    typeButton: {
-        flex: 1,
-        paddingVertical: 12,
-        borderRadius: 10,
-        backgroundColor: '#f5f5f5',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    typeButtonLost: {
-        backgroundColor: '#ffebee',
-        borderColor: '#FF3B30',
-    },
-    typeButtonFound: {
-        backgroundColor: '#e3f2fd',
-        borderColor: '#007AFF',
-    },
-    typeText: {
-        fontWeight: 'bold',
-        color: '#999',
-    },
-    typeTextActive: {
-        color: '#333',
-    },
-    imagePicker: {
-        width: '100%',
-        height: 200,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 15,
-        marginBottom: 25,
-        borderWidth: 1,
-        borderColor: '#eee',
-        borderStyle: 'dashed',
-        overflow: 'hidden',
-    },
-    imagePlaceholder: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    imageText: {
-        color: '#999',
-        marginTop: 5,
-    },
-    previewImage: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover',
-    },
-    formGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-    },
-    input: {
-        backgroundColor: '#f9f9f9',
-        padding: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#eee',
-        fontSize: 16,
-    },
-    locationInput: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        padding: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#eee',
-    },
-    textArea: {
-        height: 100,
-        textAlignVertical: 'top',
-    },
-    selectBox: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        padding: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#eee'
-    },
-    selectText: {
-        color: '#333',
-        fontSize: 14
-    },
-    placeholderText: {
-        color: '#999',
-        fontSize: 14
-    },
-    modalContainer: {
-        flex: 1,
-        backgroundColor: '#fff',
-        paddingTop: 20
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee'
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold'
-    },
-    closeButton: {
-        color: Colors.light.tint,
-        fontSize: 16,
-        fontWeight: '600'
-    },
-    modalItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5'
-    },
-    modalItemText: { fontSize: 16, color: '#333' },
-    mapButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, backgroundColor: '#f0f9ff', borderWidth: 1, borderColor: '#bde0fe', borderRadius: 10, gap: 8 },
-    mapButtonText: { color: Colors.light.tint, fontWeight: '600' },
-    mapActions: { position: 'absolute', bottom: 30, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', gap: 15 },
-    mapBtn: { flex: 1, padding: 15, borderRadius: 10, alignItems: 'center', shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 5 },
-});

@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -42,8 +42,8 @@ export default function TabLayout() {
         tabBarIcon: ({ color, focused }) => (
           <View>
             <Ionicons name={focused ? 'notifications' : 'notifications-outline'} size={26} color={color} />
-            <View style={styles.numberContainer}>
-              <Text style={styles.numberText}>10</Text>
+            <View className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-600 justify-center items-center border border-white">
+              <Text className="text-white text-[9px] font-bold">10</Text>
             </View>
           </View>
         )
@@ -54,8 +54,8 @@ export default function TabLayout() {
         tabBarIcon: ({ color, focused }) => (
           <View>
             <Ionicons name={focused ? 'chatbubble' : 'chatbubble-outline'} size={26} color={color} />
-            <View style={styles.numberContainer}>
-              <Text style={styles.numberText}>99</Text>
+            <View className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-600 justify-center items-center border border-white">
+              <Text className="text-white text-[9px] font-bold">99</Text>
             </View>
           </View>
         )
@@ -71,23 +71,3 @@ export default function TabLayout() {
 
   );
 }
-const styles = StyleSheet.create({
-  numberContainer: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: 'red',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'white'
-  },
-  numberText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: 'bold',
-  },
-})

@@ -1,10 +1,11 @@
+import LoadingOverlay from "@/components/loading-layout";
 import { auth } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
 import { getPosts } from "@/services/post-service";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, Image, RefreshControl, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import PostCard from '../../components/post-card';
 
 export default function Index() {
@@ -14,25 +15,21 @@ export default function Index() {
   const [showMenu, setShowMenu] = useState(false);
 
   const [posts, setPosts] = useState<any[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const renderFilterButton = (label: string, type: string) => (
-    <TouchableOpacity style={[
-      styles.filterButton,
-      activeFilter === type && styles.filterButtonActive
-    ]}
+    <TouchableOpacity
+      className={`py-2 px-5 rounded-[20px] bg-[#F0F0F0] border border-[#ccc] ${activeFilter === type ? 'bg-[#007AFF]' : ''}`}
       onPress={() => setActiveFilter(type)}
     >
-      <Text style={[
-        styles.filterText,
-        activeFilter === type && styles.filterTextActive
-      ]}>
+      <Text className={`text-[10px] font-semibold text-[#666] ${activeFilter === type ? 'text-white' : ''}`}>
         {label}
       </Text>
     </TouchableOpacity>
   );
 
   const fetchPosts = async () => {
+    setIsLoading(true);
     try {
       if (auth.currentUser) {
         const data = await getPosts();
@@ -43,12 +40,11 @@ export default function Index() {
         Alert.alert("Lỗi", "Không thể tải bài viết mới.");
       }
     } finally {
-      setRefreshing(false);
+      setIsLoading(false);
     }
   };
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
     fetchPosts();
   }, []);
 
@@ -79,35 +75,35 @@ export default function Index() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.logoContainer} onPress={handleMenu}>
-          <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-row justify-between items-center pt-[30px] px-5 pb-[10px] border-b border-[#ccc]">
+        <TouchableOpacity className="w-[50px] h-[50px]" onPress={handleMenu}>
+          <Image source={require('../../assets/images/icon.png')} className="w-full h-full rounded-[15px]" resizeMode="contain" />
         </TouchableOpacity>
-        <View style={styles.headerActions}>
-          <TouchableOpacity onPress={handleFilter} style={styles.searchButton}>
+        <View className="flex-row items-center gap-5">
+          <TouchableOpacity onPress={handleFilter} className="flex-row items-center gap-2.5">
             <Ionicons name="search" size={24} color="#333" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.addButton} onPress={() => { router.push('../post/create-post') }}>
+          <TouchableOpacity className="flex-row items-center gap-2.5" onPress={() => { router.push('../post/create-post') }}>
             <Ionicons name="add" size={24} color="#333" />
           </TouchableOpacity>
 
         </View>
       </View>
 
-      <View style={styles.mainScreen}>
+      <View className="flex-1">
         {showMenu &&
-          <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.buttonMenu} onPress={handleEditProfile}>
-              <Text style={styles.textMenu}>Tài khoản</Text>
+          <View className="flex-col justify-between items-center px-5 py-2.5 absolute w-1/2 top-0 left-0 z-10 gap-px">
+            <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={handleEditProfile}>
+              <Text className="text-center font-[Nunito-Bold]">Tài khoản</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleLogout} style={styles.buttonMenu}>
-              <Text style={styles.textMenu}>Đăng xuất</Text>
+            <TouchableOpacity onPress={handleLogout} className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]">
+              <Text className="text-center font-[Nunito-Bold]">Đăng xuất</Text>
             </TouchableOpacity>
           </View>}
 
-        {showFilter && <View style={styles.filterContainer}>
+        {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] top-[10px] z-10">
           {renderFilterButton('Tất cả', 'all')}
           {renderFilterButton('Mất đồ', 'lost')}
           {renderFilterButton('Thấy đồ', 'found')}
@@ -121,125 +117,15 @@ export default function Index() {
               <PostCard item={item} onPress={() => { router.push({ pathname: '../post/[id]/detail-post', params: { id: item.id } }) }} />
             ) : null
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.light.tint]} />
+            <RefreshControl refreshing={false} onRefresh={onRefresh} colors={[Colors.light.tint]} />
           }
         />
       </View>
-
+      <LoadingOverlay isLoading={isLoading} />
     </SafeAreaView>
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 30,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  logoContainer: {
-    width: 50,
-    height: 50,
-  },
-  logo: {
-    resizeMode: 'contain',
-    width: '100%',
-    height: '100%',
-    borderRadius: 15,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-  },
-  mainScreen: {
-    flex: 1,
-  },
-  searchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    gap: 12,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    borderWidth: 1,
-    width: '60%',
-    borderColor: '#ccc',
-    position: 'absolute',
-    left: '20%',
-    top: 10,
-    zIndex: 1,
-  }, filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  filterButtonActive: {
-    backgroundColor: Colors.light.tint,
-  },
-  filterText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#666',
-  },
-  filterTextActive: {
-    color: '#fff',
-  },
-  listContent: {
-    paddingBottom: 20,
-    paddingHorizontal: 20
-  },
-  menuContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    position: 'absolute',
-    width: '50%',
-    top: 0,
-    left: 0,
-    zIndex: 1,
-    gap: 1
-  },
-  buttonMenu: {
-    width: '100%',
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc'
-  },
-  textMenu: {
-    textAlign: 'center',
-    fontFamily: 'Nunito-Bold'
-  }
-
-});

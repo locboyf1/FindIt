@@ -1,7 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
 
 import { auth } from "@/configs/firebase-config";
@@ -47,8 +47,6 @@ export default function Register() {
             router.replace('/(tabs)');
         } catch (error: any) {
 
-            console.log(error.message);
-
             let msg = error.message;
 
             if (msg.includes('auth/invalid-email')) msg = 'Email không hợp lệ';
@@ -63,7 +61,7 @@ export default function Register() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView className="flex-1 bg-white">
             <Stack.Screen
                 options={{
                     headerShown: false,
@@ -73,20 +71,20 @@ export default function Register() {
                 style={{ flex: 1 }}>
                 <TouchableWithoutFeedback
                     onPress={Keyboard.dismiss}>
-                    <View style={styles.innerContainer}>
-                        <View style={styles.contentContainer}>
-                            <TouchableOpacity onPress={() => router.replace('/auth/login')} style={styles.backButton}>
+                    <View className="flex-1 justify-center">
+                        <View className="w-full items-center justify-center flex-1">
+                            <TouchableOpacity onPress={() => router.replace('/auth/login')} className="absolute top-0 left-5">
                                 <AntDesign name="left" size={20} color={Colors.light.text} />
                             </TouchableOpacity>
 
-                            <View style={styles.form}>
+                            <View className="w-[80%] items-center gap-10">
                                 <View>
-                                    <Text style={styles.title}>Đăng ký tài khoản</Text>
+                                    <Text className="text-2xl font-bold text-[#333]">Đăng ký tài khoản</Text>
                                 </View>
 
-                                <View style={styles.inputGroup}>
-                                    <Text style={styles.label}>Tên</Text>
-                                    <TextInput style={styles.input}
+                                <View className="w-full">
+                                    <Text className="font-semibold mb-2 mt-[15px] text-[#333]">Tên</Text>
+                                    <TextInput className="h-[50px] border border-[#E0E0E0] rounded-[10px] px-[15px] text-base w-full"
                                         placeholder="John Doe"
                                         placeholderTextColor="#999"
                                         value={name}
@@ -95,9 +93,9 @@ export default function Register() {
                                     />
                                 </View>
 
-                                <View style={styles.inputGroup}>
-                                    <Text style={styles.label}>Email</Text>
-                                    <TextInput style={styles.input}
+                                <View className="w-full">
+                                    <Text className="font-semibold mb-2 mt-[15px] text-[#333]">Email</Text>
+                                    <TextInput className="h-[50px] border border-[#E0E0E0] rounded-[10px] px-[15px] text-base w-full"
                                         placeholder="john.doe@example.com"
                                         placeholderTextColor="#999"
                                         value={email}
@@ -106,9 +104,9 @@ export default function Register() {
                                         keyboardType="email-address"
                                     />
                                 </View>
-                                <View style={styles.inputGroup}>
-                                    <Text style={styles.label}>Mật khẩu</Text>
-                                    <TextInput style={styles.input}
+                                <View className="w-full">
+                                    <Text className="font-semibold mb-2 mt-[15px] text-[#333]">Mật khẩu</Text>
+                                    <TextInput className="h-[50px] border border-[#E0E0E0] rounded-[10px] px-[15px] text-base w-full"
                                         placeholder="********"
                                         placeholderTextColor="#999"
                                         value={password}
@@ -117,9 +115,9 @@ export default function Register() {
                                     />
                                 </View>
 
-                                <View style={styles.inputGroup}>
-                                    <Text style={styles.label}>Xác nhận mật khẩu</Text>
-                                    <TextInput style={styles.input}
+                                <View className="w-full">
+                                    <Text className="font-semibold mb-2 mt-[15px] text-[#333]">Xác nhận mật khẩu</Text>
+                                    <TextInput className="h-[50px] border border-[#E0E0E0] rounded-[10px] px-[15px] text-base w-full"
                                         placeholder="********"
                                         placeholderTextColor="#999"
                                         value={confirmPassword}
@@ -128,10 +126,10 @@ export default function Register() {
                                     />
                                 </View>
 
-                                <TouchableOpacity onPress={handleRegister} style={styles.primaryButton}
+                                <TouchableOpacity onPress={handleRegister} className="h-[50px] w-full bg-[#007AFF] rounded-[10px] items-center justify-center border border-[#999]"
                                     disabled={loading}
                                 >
-                                    <Text style={styles.primaryButtonText}>Đăng ký</Text>
+                                    <Text className="text-white text-base font-medium">Đăng ký</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -144,67 +142,3 @@ export default function Register() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.light.background,
-    },
-    innerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 10,
-    },
-    contentContainer: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1
-    },
-    primaryButton: {
-        height: 50,
-        width: '100%',
-        backgroundColor: Colors.light.tint,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor: '#999',
-        borderWidth: 1
-    },
-    primaryButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '500'
-    },
-    backButton: {
-        position: 'absolute',
-        top: 0,
-        left: 20
-    },
-    form: {
-        width: '80%',
-        gap: 40
-    },
-    inputGroup: {
-        width: '100%',
-    },
-    label: {
-        fontWeight: '600',
-        marginBottom: 8,
-        marginTop: 15,
-        color: '#333',
-    },
-    input: {
-        height: 50,
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        fontSize: 16,
-        width: '100%'
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#333',
-    }
-});

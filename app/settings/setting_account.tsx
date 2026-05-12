@@ -1,3 +1,4 @@
+import LoadingOverlay from "@/components/loading-layout";
 import { DEFAULT_AVATAR } from "@/configs/account-config";
 import { auth, storage } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
@@ -8,13 +9,13 @@ import { router } from "expo-router";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateProfile } from "firebase/auth";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function edit_profile() {
 
     const user = auth.currentUser;
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [avatar, setAvatar] = useState<string | null>(null);
@@ -22,15 +23,15 @@ export default function edit_profile() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loadingPassword, setLoadingPassword] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         if (user) {
             setName(user.displayName || '');
             setEmail(user.email || '');
             setAvatar(user.photoURL || null);
-            setLoading(false);
         }
+        setIsLoading(false);
     }, [user]);
 
     const pickImage = async () => {
@@ -75,7 +76,7 @@ export default function edit_profile() {
             return;
         }
 
-        setLoading(true);
+        setIsLoading(true);
         try {
             const oldPhotoUrl = user.photoURL;
             let finalPhotoUrl = oldPhotoUrl;
@@ -106,7 +107,7 @@ export default function edit_profile() {
             console.log("Có lỗi khi cập nhật thông tin: ", error);
             Alert.alert('Lỗi', 'Có lỗi khi cập nhật thông tin.');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     }
 
@@ -131,7 +132,7 @@ export default function edit_profile() {
             return;
         }
 
-        setLoadingPassword(true);
+        setIsLoading(true);
         try {
             const credential = EmailAuthProvider.credential(user.email || '', currentPassword);
             await reauthenticateWithCredential(user, credential);
@@ -146,74 +147,74 @@ export default function edit_profile() {
             Alert.alert('Lỗi', 'Sai mật khẩu');
             setCurrentPassword('');
         } finally {
-            setLoadingPassword(false);
+            setIsLoading(false);
         }
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView className="flex-1 bg-white">
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}>
 
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
+                <View className="flex-row justify-between items-center px-5 py-[15px] border-b border-[#eee] bg-white">
+                    <TouchableOpacity onPress={() => router.back()} className="w-[60px] items-center">
                         <Ionicons name="arrow-back" size={26} color="#333" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Cài đặt tài khoản</Text>
-                    <TouchableOpacity onPress={handleSave} disabled={loading} style={styles.headerButton}>
-                        {loading ? (
+                    <Text className="text-[18px] font-bold text-[#333]">Cài đặt tài khoản</Text>
+                    <TouchableOpacity onPress={handleSave} disabled={isLoading} className="w-[60px] items-center">
+                        {isLoading ? (
                             <ActivityIndicator size="small" color={Colors.light.tint} />
                         ) : (
-                            <Text style={styles.saveButton}>Lưu</Text>
+                            <Text className="text-base font-bold text-[#007AFF]">Lưu</Text>
                         )}
                     </TouchableOpacity>
                 </View>
 
                 <ScrollView showsVerticalScrollIndicator={false}>
 
-                    <View style={styles.section}>
-                        <View style={styles.avatarSection}>
-                            <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
-                                <Image source={avatar ? { uri: avatar } : DEFAULT_AVATAR} style={styles.avatar} />
-                                <View style={styles.cameraIconContainer}>
+                    <View className="p-5 bg-white">
+                        <View className="items-center mb-[30px]">
+                            <TouchableOpacity onPress={pickImage} className="w-[120px] h-[120px] rounded-full bg-[#f0f0f0] justify-center items-center relative shadow-lg elevation-5 border-[3px] border-white">
+                                <Image source={avatar ? { uri: avatar } : DEFAULT_AVATAR} className="w-full h-full rounded-full" />
+                                <View className="absolute bottom-0 right-0 bg-[#007AFF] w-9 h-9 rounded-full justify-center items-center border-[3px] border-white">
                                     <Ionicons name="camera" size={16} color="#fff" />
                                 </View>
                             </TouchableOpacity>
-                            <Text style={styles.avatarHint}>Chạm để đổi ảnh đại diện</Text>
+                            <Text className="mt-[15px] text-sm text-[#888]">Chạm để đổi ảnh đại diện</Text>
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={styles.label}>Tên hiển thị</Text>
+                        <View className="w-full mb-4">
+                            <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Tên hiển thị</Text>
                             <TextInput
-                                style={styles.input}
+                                className="bg-[#f9f9f9] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#333]"
                                 placeholder="Nhập tên của bạn"
                                 value={name}
                                 onChangeText={setName}
                             />
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={styles.label}>Email</Text>
+                        <View className="w-full mb-4">
+                            <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Email</Text>
                             <TextInput
-                                style={[styles.input, styles.inputDisabled]}
+                                className="bg-[#f0f0f0] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#999]"
                                 value={email}
                                 editable={false}
                             />
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View className="h-px bg-[#eee] my-5" />
 
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Đổi mật khẩu</Text>
+                    <View className="p-5 bg-white">
+                        <View className="flex-row items-center mb-5 gap-2">
+                            <Text className="text-[18px] font-bold text-[#333]">Đổi mật khẩu</Text>
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={styles.label}>Mật khẩu hiện tại</Text>
+                        <View className="w-full mb-4">
+                            <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Mật khẩu hiện tại</Text>
                             <TextInput
-                                style={styles.input}
+                                className="bg-[#f9f9f9] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#333]"
                                 placeholder="Nhập mật khẩu cũ..."
                                 value={currentPassword}
                                 onChangeText={setCurrentPassword}
@@ -221,10 +222,10 @@ export default function edit_profile() {
                             />
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={styles.label}>Mật khẩu mới</Text>
+                        <View className="w-full mb-4">
+                            <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Mật khẩu mới</Text>
                             <TextInput
-                                style={styles.input}
+                                className="bg-[#f9f9f9] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#333]"
                                 placeholder="Tối thiểu 6 ký tự..."
                                 value={newPassword}
                                 onChangeText={setNewPassword}
@@ -232,10 +233,10 @@ export default function edit_profile() {
                             />
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={styles.label}>Xác nhận mật khẩu mới</Text>
+                        <View className="w-full mb-4">
+                            <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Xác nhận mật khẩu mới</Text>
                             <TextInput
-                                style={styles.input}
+                                className="bg-[#f9f9f9] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#333]"
                                 placeholder="Nhập lại mật khẩu mới..."
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
@@ -244,157 +245,20 @@ export default function edit_profile() {
                         </View>
 
                         <TouchableOpacity
-                            style={styles.passwordButton}
+                            className="bg-[#007AFF] py-[15px] rounded-[12px] items-center mt-2.5 shadow-md elevation-4"
                             onPress={handleChangePassword}
-                            disabled={loadingPassword}
+                            disabled={isLoading}
                         >
-                            {loadingPassword ? (
-                                <ActivityIndicator color="#fff" />
-                            ) : (
-                                <Text style={styles.passwordButtonText}>Cập nhật mật khẩu</Text>
-                            )}
+                            <Text className="text-white text-base font-bold">Cập nhật mật khẩu</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ height: 40 }} />
+                    <View className="h-10" />
 
                 </ScrollView>
             </KeyboardAvoidingView>
+            <LoadingOverlay isLoading={isLoading} />
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff'
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        backgroundColor: '#fff',
-    },
-    headerButton: {
-        width: 60,
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333'
-    },
-    saveButton: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: Colors.light.tint
-    },
-    section: {
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#eee',
-        marginVertical: 20,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-        gap: 8,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    avatarSection: {
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    avatarContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: '#f0f0f0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-        borderWidth: 3,
-        borderColor: '#fff',
-    },
-    avatar: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 60,
-    },
-    cameraIconContainer: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        backgroundColor: Colors.light.tint,
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 3,
-        borderColor: '#fff',
-    },
-    avatarHint: {
-        marginTop: 15,
-        fontSize: 14,
-        color: '#888',
-    },
-    formGroup: {
-        width: '100%',
-        marginBottom: 16
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#555',
-        marginBottom: 8,
-        marginLeft: 4,
-    },
-    input: {
-        backgroundColor: '#f9f9f9',
-        padding: 15,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#eee',
-        fontSize: 16,
-        color: '#333',
-    },
-    inputDisabled: {
-        backgroundColor: '#f0f0f0',
-        color: '#999',
-    },
-    passwordButton: {
-        backgroundColor: Colors.light.tint,
-        paddingVertical: 15,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginTop: 10,
-        shadowColor: Colors.light.tint,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 4,
-    },
-    passwordButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    }
-})

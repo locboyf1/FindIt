@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TextTicker from 'react-native-text-ticker';
 
@@ -32,32 +32,32 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Thông báo</Text>
+    <SafeAreaView className="flex-1">
+      <View className="flex-row justify-between items-center py-5 px-5 border-b border-[#ccc]">
+        <Text className="text-center font-[Nunito-Bold] text-[30px]">Thông báo</Text>
         <TouchableOpacity>
           <Ionicons name="ellipsis-vertical-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      <View style={styles.content}>
+      <View className="flex-1 px-5 py-5">
         <FlatList contentContainerStyle={{ gap: 20 }}
           data={mockData}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.item}>
-              <View style={styles.itemImageContainer}>
-                {item.image ? <Image source={{ uri: item.image }} style={styles.itemImage} /> : <Ionicons name="notifications-outline" size={24} color="black" />}
+            <View className="flex-row items-center gap-2.5">
+              <View className="w-[60px] h-[60px] p-[5px] rounded-full overflow-hidden border border-black items-center justify-center">
+                {item.image ? <Image source={{ uri: item.image }} className="w-full h-full rounded-full" resizeMode="cover" /> : <Ionicons name="notifications-outline" size={24} color="black" />}
               </View>
-              <View style={{ flex: 1, gap: 5 }}>
-                <View style={styles.itemTitleContainer}>
-                  <TouchableOpacity style={{ flex: 1 }}>
+              <View className="flex-1 gap-[5px]">
+                <View className="flex-row items-center gap-[5px] justify-between">
+                  <TouchableOpacity className="flex-1">
                     <TextTicker style={{ fontFamily: 'Nunito-Bold', fontSize: 16 }} duration={10000}>{item.title}</TextTicker>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.itemBarIconContainer}>
+                  <TouchableOpacity className="w-5 h-5 items-center justify-center">
                     <Ionicons name="ellipsis-vertical-outline" size={20} color="black" />
                   </TouchableOpacity>
                 </View>
-                <Text style={{ fontFamily: 'Nunito-Regular', fontSize: 12 }}>{item.time}</Text>
+                <Text className="font-[Nunito-Regular] text-[12px]">{item.time}</Text>
               </View>
             </View>
           )}
@@ -66,31 +66,3 @@ export default function Index() {
     </SafeAreaView>
   )
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  itemImageContainer: { width: 60, height: 60, padding: 5, borderRadius: '100%', overflow: 'hidden', borderColor: '#000', borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  itemImage: { width: '100%', height: '100%', borderRadius: 100, resizeMode: 'cover' },
-  itemBarIconContainer: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: {
-    textAlign: 'center',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 30,
-  },
-  itemTitleContainer: { flexDirection: 'row', alignItems: 'center', gap: 5, justifyContent: 'space-between' }
-})

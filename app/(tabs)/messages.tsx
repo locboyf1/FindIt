@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TextTicker from "react-native-text-ticker";
 
@@ -38,10 +38,10 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Tin nhắn</Text>
-        <View style={styles.headerIconContainer}>
+    <SafeAreaView className="flex-1">
+      <View className="flex-row justify-between items-center py-5 px-5 border-b border-[#ccc]">
+        <Text className="text-center font-[Nunito-Bold] text-[30px]">Tin nhắn</Text>
+        <View className="flex-row gap-[15px]">
           <TouchableOpacity>
             <Ionicons name="search-outline" size={24} color="black" />
           </TouchableOpacity>
@@ -50,31 +50,31 @@ export default function Index() {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.content}>
+      <View className="flex-1 px-5 py-5">
         <FlatList contentContainerStyle={{ gap: 20 }}
           data={mockData}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.item}>
-              <View style={styles.itemImageContainer}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
+            <View className="flex-row w-full items-center gap-2.5">
+              <View className="w-[60px] h-[60px] rounded-full overflow-hidden border border-black items-center justify-center">
+                <Image source={{ uri: item.image }} className="w-full h-full rounded-full" resizeMode="cover" />
               </View>
-              <View style={{ flex: 1, gap: 5 }}>
-                <View style={styles.itemTitleContainer}>
-                  <TouchableOpacity style={{ flex: 1 }}>
-                    <Text style={{ fontFamily: 'Nunito-Bold', fontSize: 16 }}>{item.title}</Text>
+              <View className="flex-1 gap-[5px]">
+                <View className="flex-row items-center gap-[5px] justify-between">
+                  <TouchableOpacity className="flex-1">
+                    <Text className="font-[Nunito-Bold] text-[16px]">{item.title}</Text>
                   </TouchableOpacity>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                    <Text style={{ fontFamily: 'Nunito-Regular', fontSize: 12 }}>{item.time}</Text>
-                    <View style={{ alignItems: 'center', gap: 5 }}>
-                      <View style={{ paddingVertical: 5, width: 40, borderRadius: 25, backgroundColor: '#1F8CF9', alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ fontFamily: 'Nunito-Bold', fontSize: 10, color: '#fff' }}>{item.number_unread_message}</Text>
+                  <View className="flex-row items-center gap-[5px]">
+                    <Text className="font-[Nunito-Regular] text-[12px]">{item.time}</Text>
+                    <View className="items-center gap-[5px]">
+                      <View className="py-[5px] w-10 rounded-[25px] bg-[#1F8CF9] items-center justify-center">
+                        <Text className="font-[Nunito-Bold] text-[10px] color-white">{item.number_unread_message}</Text>
                       </View>
                     </View>
                   </View>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, width: '100%', justifyContent: 'space-between' }}>
-                  <View style={{ flex: 1 }}>
+                <View className="flex-row items-center gap-[5px] w-full justify-between">
+                  <View className="flex-1">
                     <TextTicker duration={10000} style={{ fontFamily: 'Nunito-Regular', fontSize: 14, color: '#666' }}>{item.last_message}</TextTicker>
                   </View>
                   <Ionicons name="chatbox-outline" size={24} color="black" />
@@ -87,34 +87,3 @@ export default function Index() {
     </SafeAreaView>
   )
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  itemImageContainer: { width: 60, height: 60, borderRadius: '100%', overflow: 'hidden', borderColor: '#000', borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  itemImage: { width: '100%', height: '100%', borderRadius: 100, resizeMode: 'cover' },
-  headerTitle: {
-    textAlign: 'center',
-    fontFamily: 'Nunito-Bold',
-    fontSize: 30,
-  },
-  headerIconContainer: {
-    flexDirection: 'row',
-    gap: 15,
-  },
-  itemTitleContainer: { flexDirection: 'row', alignItems: 'center', gap: 5, justifyContent: 'space-between' }
-})
