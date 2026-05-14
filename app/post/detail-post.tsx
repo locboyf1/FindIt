@@ -3,7 +3,7 @@ import { auth } from "@/configs/firebase-config";
 import { EMPTY_POST } from "@/constants/post";
 import { Colors } from "@/constants/theme";
 import { DEFAULT_AVATAR } from "@/constants/user";
-import { getPostById } from "@/services/post-service";
+import { changeStatusPost, getPostById } from "@/services/post-service";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -59,10 +59,23 @@ export default function DetailPostScreen() {
         switch (type) {
             case 'lost': return 'Mất đồ';
             case 'found': return 'Tìm thấy';
-            case 'resolved': return 'Đã giải quyết';
-            case 'returned': return 'Đã trả lại';
         }
     };
+
+    const changeStatus = async () => {
+       try{
+            await changeStatusPost(post.id);
+            if(post.status == 'open') {
+                setPost({ ...post, status: 'resolved' });
+            }
+            else if(post.status == 'resolved') {
+                setPost({ ...post, status: 'open' });
+            }
+            Alert.alert('Thông báo', 'Đổi trạng thái thành công');
+        }catch(error){
+            Alert.alert('Lỗi', 'Có gì đó không đúng');
+        }
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -127,6 +140,18 @@ export default function DetailPostScreen() {
                             <TouchableOpacity className="flex-row items-center bg-[#007AFF] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={() => { Alert.alert('Thông báo', 'Tính năng chưa thêm') }}>
                                 <Ionicons name="chatbubble-ellipses" size={18} color={'#fff'} />
                                 <Text className="text-white font-bold text-sm">Liên hệ</Text>
+                            </TouchableOpacity>
+                        )}
+                        {post.userId == auth.currentUser?.uid && post.status == 'open' && (
+                            <TouchableOpacity className="flex-row items-center bg-[#48b538] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={changeStatus}>
+                                <Ionicons name="checkbox-outline" size={18} color={'#fff'} />
+                                <Text className="text-white font-bold text-sm">Xong</Text>
+                            </TouchableOpacity>
+                        )}
+                        {post.userId == auth.currentUser?.uid && post.status == 'resolved' && (
+                            <TouchableOpacity className="flex-row items-center bg-[#b5b538] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={changeStatus}>
+                                <Ionicons name="square-outline" size={18} color={'#fff'} />
+                                <Text className="text-white font-bold text-sm">Xong</Text>
                             </TouchableOpacity>
                         )}
                     </View>

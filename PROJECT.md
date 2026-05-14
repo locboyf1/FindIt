@@ -37,32 +37,35 @@ FindIt/
 │   │   ├── create-post.tsx     # Tạo bài viết mới
 │   │   └── [id]/
 │   │       ├── detail-post.tsx # Xem chi tiết bài viết
-│   │       └── update-post.tsx # Sửa bài viết (updatePost chưa implement)
+│   │       └── update-post.tsx # Sửa bài viết
+│   ├── user/
+│   │   └── user.tsx            # Trang cá nhân người dùng
 │   └── settings/
 │       └── setting_account.tsx # Cài đặt tài khoản: đổi tên, avatar, mật khẩu
 ├── components/
 │   ├── post-card.tsx           # Component card bài viết (dùng ở trang chủ)
+│   ├── post-list.tsx           # Component item danh sách bài viết (dùng ở trang cá nhân)
+│   ├── tab-bar-gap.tsx         # Khoảng trống tránh bị Tab Bar che nội dung
+│   ├── loading-layout.tsx      # Overlay khi đang tải dữ liệu
 │   ├── themed-text.tsx         # Text có theme
 │   ├── themed-view.tsx         # View có theme
-│   ├── external-link.tsx       # Link mở external
-│   ├── haptic-tab.tsx          # Tab với haptic feedback
-│   ├── hello-wave.tsx          # Animation wave (mặc định Expo)
-│   ├── parallax-scroll-view.tsx # Parallax scroll (mặc định Expo)
 │   └── ui/
 │       ├── collapsible.tsx     # Component collapsible
 │       ├── icon-symbol.tsx     # SF Symbol wrapper
 │       └── icon-symbol.ios.tsx # SF Symbol iOS
 ├── configs/
 │   ├── firebase-config.ts      # Firebase init: app, auth, db, storage
-│   └── account-config.ts       # DEFAULT_AVATAR constant
+│   └── user.ts                 # DEFAULT_AVATAR constant
 ├── constants/
-│   └── theme.ts                # Colors object (light/dark mode)
+│   ├── theme.ts                # Colors object (light/dark mode)
+│   ├── user.ts                 # Hằng số liên quan user
+│   └── post.ts                 # Hằng số liên quan bài viết (EMPTY_POST)
 ├── hooks/
 │   ├── use-color-scheme.ts     # Hook lấy color scheme
-│   ├── use-color-scheme.web.ts # Color scheme cho web
 │   └── use-theme-color.ts      # Hook lấy theme color
 ├── services/
 │   ├── post-service.tsx        # CRUD bài viết (Firestore)
+│   ├── user-service.tsx        # Quản lý tài khoản và thông tin user (Firestore)
 │   └── utilities-service.tsx   # Hàm tiện ích (formatTime, location matching)
 └── assets/
     ├── data/
@@ -76,7 +79,7 @@ FindIt/
 - **Auth**: Email/Password với `getReactNativePersistence(AsyncStorage)`
 - **Exports**: `app`, `auth`, `db`, `storage`
 
-## Firestore Schema
+## Firestore Schema 
 
 ### Collection: `posts`
 | Field | Type | Mô tả |
@@ -95,7 +98,20 @@ FindIt/
 | `userName` | string \| null | Tên hiển thị người đăng |
 | `userAvatar` | string \| null | URL avatar người đăng |
 | `createdAt` | Timestamp | Server timestamp |
-| `status` | string | `'open'` (mặc định khi tạo) |
+| `status` | string | `'open'` \| `'resolved'` |
+| `isHidden` | boolean | Trạng thái ẩn bài viết |
+| `isBanned` | boolean | Trạng thái bài viết bị khóa |
+
+### Collection: `users`
+| Field | Type | Mô tả |
+|---|---|---|
+| `userName` | string | Tên hiển thị |
+| `email` | string | Email tài khoản |
+| `userId` | string | UID từ Firebase Auth |
+| `isBanned` | boolean | Trạng thái tài khoản bị khóa |
+| `role` | string | Quyền hạn (`user` / `admin`) |
+| `createdAt` | Timestamp | Ngày tham gia |
+| `userAvatar` | string \| null | URL avatar |
 
 ### Post Type & Status mapping
 | Type | Label tiếng Việt | Màu |
@@ -113,10 +129,19 @@ FindIt/
 | `createPost(data)` | Tạo bài viết mới (upload ảnh → lưu Firestore) |
 | `getPosts()` | Lấy tất cả bài viết (sắp xếp theo `createdAt` giảm dần) |
 | `getPostById(postId)` | Lấy 1 bài viết theo ID |
+| `getPostsByUserId(userId, isOwner)` | Lấy bài viết của user (có lọc ẩn/khóa nếu không phải chủ) |
+| `updatePost(id, data)` | Cập nhật thông tin bài viết |
 | `updateUserInPost(userId, userName, userAvatar)` | Batch update thông tin user trên tất cả bài viết của user đó |
 | `uploadImage(image)` | Upload ảnh lên Firebase Storage, trả về download URL |
 
-> **Lưu ý**: Chưa có hàm `updatePost` - màn hình `update-post.tsx` đã có UI nhưng logic gọi API bị comment out.
+### `user-service.tsx`
+| Hàm | Chức năng |
+|---|---|
+| `registerAccount(data)` | Đăng ký tài khoản (Auth + Firestore) |
+| `loginAccount(data)` | Đăng nhập tài khoản |
+| `changePassword(data)` | Đổi mật khẩu |
+| `updateAccount(data)` | Cập nhật thông tin cá nhân (tên, avatar) |
+| `getUserById(userId)` | Lấy thông tin chi tiết user từ Firestore |
 
 ### `utilities-service.tsx`
 | Hàm | Chức năng |
@@ -156,6 +181,12 @@ FindIt/
 - Menu dropdown (Tài khoản, Đăng xuất)
 - Kiểm tra `auth.currentUser` trước khi fetch
 
+### Trang cá nhân (`user.tsx`)
+- Hiển thị thông tin người dùng (tên, avatar)
+- Thống kê số lượng bài đăng và bài đã giải quyết thành công
+- Hiển thị danh sách bài viết của người đó bằng `PostList`
+- Tự động lọc bài ẩn/khóa nếu người xem không phải là chủ trang cá nhân
+
 ### Tạo/Sửa bài viết (`create-post.tsx` / `update-post.tsx`)
 - Chọn loại: MẤT ĐỒ / NHẶT ĐƯỢC
 - Chọn ảnh từ thư viện (ImagePicker, 4:3, quality 0.5)
@@ -168,7 +199,7 @@ FindIt/
 - Ảnh lớn phía trên, content bo tròn overlay
 - Badge trạng thái + thời gian
 - Thông tin địa điểm (location + ward + province)
-- Thông tin người đăng (avatar + tên)
+- Thông tin người đăng (avatar + tên) → Nhấn để vào Trang cá nhân
 - Nút "Liên hệ" (chưa implement) / "Sửa" (nếu là chủ bài viết) / "Báo cáo"
 - MapView hiển thị vị trí (nếu có geo)
 
@@ -176,7 +207,7 @@ FindIt/
 - Đổi avatar (upload lên Firebase Storage, xóa ảnh cũ)
 - Đổi tên hiển thị
 - Đổi mật khẩu (yêu cầu re-authenticate)
-- Khi lưu → cập nhật cả `displayName` + `photoURL` trên Firebase Auth, batch update `userName` + `userAvatar` trên tất cả bài viết
+- Khi lưu → cập nhật cả `displayName` + `photoURL` trên Firebase Auth, cập nhật Firestore collection `users`, batch update `userName` + `userAvatar` trên tất cả bài viết
 
 ## Theme / Design System
 - **Font**: Nunito (Regular, SemiBold, Bold)
@@ -186,15 +217,14 @@ FindIt/
 - **Hỗ trợ Light/Dark mode** (cấu hình sẵn nhưng chủ yếu dùng light)
 
 ## Tính năng chưa hoàn thành
-1. **`updatePost`** - Hàm cập nhật bài viết trong `post-service.tsx` chưa viết
-2. **Social login** - Google/Github/Apple chỉ có UI, chưa implement
-3. **Tin nhắn** - Dùng mock data, chưa kết nối backend
-4. **Thông báo** - Dùng mock data, chưa kết nối backend
-5. **Cộng đồng** - Trang placeholder trống
-6. **Nút "Liên hệ"** - Trong detail-post, chưa implement
-7. **Nút "Báo cáo"** - Trong detail-post, chưa implement
-8. **Badge thông báo/tin nhắn** - Đang hardcode số (10, 99)
-9. **Xóa bài viết** - Chưa có chức năng
+1. **Social login** - Google/Github/Apple chỉ có UI, chưa implement
+2. **Tin nhắn** - Dùng mock data, chưa kết nối backend
+3. **Thông báo** - Dùng mock data, chưa kết nối backend
+4. **Cộng đồng** - Trang placeholder trống
+5. **Nút "Liên hệ"** - Trong detail-post, chưa implement
+6. **Nút "Báo cáo"** - Trong detail-post, chưa implement
+7. **Badge thông báo/tin nhắn** - Đang hardcode số (10, 99)
+8. **Xóa bài viết** - Chưa có chức năng
 
 ## Lệnh chạy
 ```bash

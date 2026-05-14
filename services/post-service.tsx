@@ -249,3 +249,28 @@ export const getPostsByUserId = async (userId: string, isOwner: boolean) => {
         throw error;
     }
 }
+
+export const changeStatusPost = async (id: string) => {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('Bạn cần đăng nhập để thực hiện hành động này.');
+        }
+        const docRef = doc(db, 'posts', id);
+        const docSnap = await getDoc(docRef);
+        const status = docSnap.data()?.status;
+        let newStatus = 'open';
+        if(status == 'open') {
+            newStatus = 'resolved'
+        }
+        else if(status == 'resolved') {
+            newStatus = 'open'
+        }
+        await updateDoc(docRef, {
+            status: newStatus,
+        });
+    } catch (error) {
+        console.log("Có lỗi khi đổi trạng thái bài viết: ", error);
+        throw error;
+    }
+}
