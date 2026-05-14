@@ -72,7 +72,7 @@ export default function DetailPostScreen() {
                 </TouchableOpacity>
                 <Text className="text-[18px] font-bold text-[#333]">Chi tiết bài viết</Text>
                 {post.userId == auth.currentUser?.uid ? (
-                    <TouchableOpacity onPress={() => { router.push({ pathname: '/post/[id]/update-post', params: { id: post.id } }) }} disabled={isLoading} className="w-[60px] items-center">
+                    <TouchableOpacity onPress={() => { router.push({ pathname: '/post/update-post', params: { id: post.id } }) }} disabled={isLoading} className="w-[60px] items-center">
                         <Text className="text-base font-bold text-[#007AFF]">Sửa</Text>
                     </TouchableOpacity>
                 ) : (
@@ -112,15 +112,17 @@ export default function DetailPostScreen() {
 
                     <View className="h-px bg-[#eee] my-5" />
 
-                    <View className="flex-row items-center">
-                        <Image
-                            source={post.userAvatar ? { uri: post.userAvatar } : DEFAULT_AVATAR}
-                            className="w-[50px] h-[50px] rounded-full mr-[15px]"
-                        />
-                        <View className="flex-1">
-                            <Text className="text-base font-bold text-[#333]">{post.userName || 'Người dùng'}</Text>
-                            <Text className="text-[13px] text-[#888] mt-[2px]">Người đăng bài</Text>
-                        </View>
+                    <View className="flex-row items-center w-full">
+                        <TouchableOpacity className="flex-1 flex-row items-center" onPress={()=>{router.push({pathname: '/user/user', params: {id: post.userId}})}}>
+                            <Image
+                                source={post.userAvatar ? { uri: post.userAvatar } : DEFAULT_AVATAR}
+                                className="w-[50px] h-[50px] rounded-full mr-[15px]"
+                            />
+                            <View className="flex-1">
+                                <Text className="text-base font-bold text-[#333]">{post.userName || 'Người dùng'}</Text>
+                                <Text className="text-[13px] text-[#888] mt-[2px]">Người đăng bài</Text>
+                            </View>
+                        </TouchableOpacity>
                         {post.userId != auth.currentUser?.uid && (
                             <TouchableOpacity className="flex-row items-center bg-[#007AFF] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={() => { Alert.alert('Thông báo', 'Tính năng chưa thêm') }}>
                                 <Ionicons name="chatbubble-ellipses" size={18} color={'#fff'} />

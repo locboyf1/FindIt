@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, updateDoc, where, writeBatch } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, updateDoc, where, writeBatch } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { auth, db, storage } from "../configs/firebase-config";
 import { formatTime } from "./utilities-service";
@@ -73,7 +73,7 @@ const uploadImage = async (image: string) => {
 
 export const getPosts = async () => {
     try {
-        const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+        const q = query(collection(db, 'posts'), where('isHidden', '==', false), where('isBanned', '==', false));
         const querySnapshot = await getDocs(q);
 
         return querySnapshot.docs.map(doc => {
@@ -93,11 +93,16 @@ export const getPosts = async () => {
                 },
                 geo: data.geo,
                 image: data.image,
-                time: formatTime(data.createdAt),
+                createdAt: data.createdAt,
                 userName: data.userName,
                 userAvatar: data.userAvatar,
+                time: formatTime(data.createdAt),
             };
-        }).filter((post: any) => !post.isHidden && !post.isBanned);
+        }).sort((a, b) => {
+            const timeA = a.createdAt.seconds();
+            const timeB = b.createdAt.seconds();
+            return timeB - timeA;
+        });
     } catch (error) {
         console.log("Có lỗi khi lấy bài viết: ", error);
         throw error;
@@ -148,6 +153,12 @@ export const getPostById = async (postId: string) => {
 }
 
 export const updatePost = async (id: string, data: any) => {
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error('Bạn cần đăng nhập để thực hiện hành động này.');
+    }
+
     try {
         const docRef = doc(db, 'posts', id);
         const docSnap = await getDoc(docRef);
@@ -174,9 +185,9 @@ export const updatePost = async (id: string, data: any) => {
             } : null,
             type: data.type,
             image: finalImageUrl,
-            userId: data.userId,
-            userName: data.userName,
-            userAvatar: data.userAvatar,
+            userId: user.uid,
+            userName: user.displayName,
+            userAvatar: user.photoURL,
         });
 
         if (hasNewImage && oldImage && oldImage.includes('firebasestorage.googleapis.com')) {
@@ -189,6 +200,52 @@ export const updatePost = async (id: string, data: any) => {
         }
     } catch (error) {
         console.log("Có lỗi khi cập nhật bài viết: ", error);
+        throw error;
+    }
+    
+}
+
+export const getPostsByUserId = async (userId: string) => {
+    try {
+        const q = query(collection(db, 'posts'), where('userId', '==', userId));
+        const querySnapshot = await getDocs(q);
+
+        const posts = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                type: data.type,
+                location: data.location,
+                province: {
+                    id: data.provinceId,
+                    name: data.provinceName
+                },
+                ward: {
+                    id: data.wardId,
+                    name: data.wardName
+                },
+                geo: data.geo,
+                image: data.image,
+                createdAt: data.createdAt,
+                time: formatTime(data.createdAt),
+                userName: data.userName,
+                userAvatar: data.userAvatar,
+                isHidden: data.isHidden,
+                isBanned: data.isBanned,
+            };
+        }).sort((a, b) => {
+            const timeA = a.createdAt.seconds();
+            const timeB = b.createdAt.seconds();
+            return timeB - timeA;
+        });
+        if(auth.currentUser?.uid == userId) {
+            return posts;
+        }else{
+            return posts.filter((post: any) => !post.isHidden && !post.isBanned);
+        }
+    } catch (error) {
+        console.log("Có lỗi khi lấy bài viết: ", error);
         throw error;
     }
 }

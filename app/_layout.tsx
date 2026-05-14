@@ -1,5 +1,6 @@
 import { auth } from '@/configs/firebase-config';
 import { Colors } from '@/constants/theme';
+import useHideBottomBar from '@/hooks/use-hiden-bottom-bar';
 import {
   Nunito_400Regular,
   Nunito_600SemiBold,
@@ -16,6 +17,7 @@ import 'react-native-reanimated';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useHideBottomBar();
   const [loaded] = useFonts({
     'Nunito-Regular': Nunito_400Regular,
     'Nunito-SemiBold': Nunito_600SemiBold,
@@ -44,7 +46,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (initializing || !loaded) return;
-
     const inAuthGroup = segments[0] === 'auth';
 
     if (user && inAuthGroup) {

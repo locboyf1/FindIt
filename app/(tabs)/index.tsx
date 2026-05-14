@@ -70,10 +70,6 @@ export default function Index() {
     setShowMenu(!showMenu);
   };
 
-  const handleEditProfile = () => {
-    router.push('../settings/setting_account');
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row justify-between items-center pt-[30px] px-5 pb-[10px] border-b border-[#ccc]">
@@ -95,7 +91,7 @@ export default function Index() {
       <View>
         {showMenu &&
           <View className="flex-col justify-between items-center px-5 py-2.5 absolute w-1/2 top-0 left-0 z-10 gap-px">
-            <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={handleEditProfile}>
+            <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={()=>{router.push('../settings/setting_account')}}>
               <Text className="text-center font-[Nunito-Bold]">Tài khoản</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleLogout} className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]">
@@ -114,7 +110,7 @@ export default function Index() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' && item.type === 'resolved') || (activeFilter === 'found' && item.type === 'returned')) ? (
-              <PostCard item={item} onPress={() => { router.push({ pathname: '../post/[id]/detail-post', params: { id: item.id } }) }} />
+              <PostCard item={item} onPress={() => { router.push({ pathname: '../post/detail-post', params: { id: item.id } }) }} />
             ) : null
           )}
           contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}

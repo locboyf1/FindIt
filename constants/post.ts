@@ -1,3 +1,4 @@
+import { FieldValue, Timestamp } from "firebase/firestore";
 
 export interface PostType {
     id: string;
@@ -9,7 +10,7 @@ export interface PostType {
     status: 'open' | 'resolved';
     isHidden: boolean;
     isBanned: boolean;
-    createdAt: any;
+    createdAt: Timestamp | FieldValue | any;
     userId: string;
     userName: string;
     userAvatar: string | null;
@@ -21,6 +22,7 @@ export interface PostType {
         lat: number;
         lng: number;
     } | null;
+    time? : string;
 }
 export const EMPTY_POST: PostType = {
     id: '',

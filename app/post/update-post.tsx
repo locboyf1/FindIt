@@ -16,18 +16,18 @@ import {
     View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPostById, updatePost } from "../../../services/post-service";
+import { getPostById, updatePost } from "../../services/post-service";
 
 import MapView, { Marker } from 'react-native-maps';
 
-import { auth } from "../../../configs/firebase-config";
+import { auth } from "../../configs/firebase-config";
 
-import provinceData from "../../../assets/data/provinces.json";
-import wardData from "../../../assets/data/wards.json";
+import provinceData from "../../assets/data/provinces.json";
+import wardData from "../../assets/data/wards.json";
 
 import LoadingOverlay from "@/components/loading-layout";
 import * as Location from 'expo-location';
-import { isMatchLocation } from "../../../services/utilities-service";
+import { isMatchLocation } from "../../services/utilities-service";
 
 type AddessItem = {
     id: number;
@@ -140,9 +140,6 @@ export default function UpdatePostScreen() {
                 coords: coords,
                 type,
                 image: image,
-                userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
-                userAvatar: auth.currentUser.photoURL
             });
 
             Alert.alert('Thành công', 'Bài viết đã được đăng!');
