@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+    Alert,
     Dimensions,
     FlatList,
     Image,
@@ -18,6 +19,7 @@ import { auth } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
 import { DEFAULT_AVATAR } from "@/constants/user";
 import { getPostsByUserId } from "@/services/post-service";
+import { getUserById } from '@/services/user-service';
 
 const { width } = Dimensions.get('window');
 
@@ -30,16 +32,38 @@ export default function UserProfileScreen() {
     const [posts, setPosts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const userDisplay = {
-        name: posts.length > 0 ? posts[0].userName : (isOwner ? auth.currentUser?.displayName : 'Người dùng'),
-        avatar: posts.length > 0 ? posts[0].userAvatar : (isOwner ? auth.currentUser?.photoURL : null),
-    };
+    const [userInfo, setUserInfo] = useState<any>({
+        userName: 'Người dùng',
+        userAvatar: null,
+        time: '',
+    });
 
     useEffect(() => {
         if (id) {
             fetchUserPosts();
+            fetchUserInfo();
         }
     }, [id, isOwner]);
+
+    const fetchUserInfo = async () => {
+        setIsLoading(true);
+        try {
+            const info = await getUserById(id as string);
+            if (info) {
+                setUserInfo(info);
+            } else {
+                setUserInfo({
+                    userName: 'Người dùng',
+                    userAvatar: null,
+                    time: '',
+                });
+            }
+        } catch (error: any) {
+            Alert.alert("Lỗi", error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const fetchUserPosts = async () => {
         setIsLoading(true);
@@ -62,12 +86,12 @@ export default function UserProfileScreen() {
     const renderHeader = () => (
         <View className="items-center py-8 bg-white border-b border-gray-100 mb-4">
             <View className="relative">
-                <Image 
-                    source={userDisplay.avatar ? { uri: userDisplay.avatar } : DEFAULT_AVATAR}
+                <Image
+                    source={userInfo.userAvatar ? { uri: userInfo.userAvatar } : DEFAULT_AVATAR}
                     className="w-24 h-24 rounded-full border-4 border-gray-50 bg-gray-200"
                 />
                 {isOwner && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         className="absolute bottom-0 right-0 bg-[#007AFF] p-2 rounded-full border-2 border-white shadow-sm"
                         onPress={() => router.push('/settings/setting_account')}
                     >
@@ -75,21 +99,21 @@ export default function UserProfileScreen() {
                     </TouchableOpacity>
                 )}
             </View>
-            
-            <Text className="text-xl font-bold mt-4 text-gray-800">{userDisplay.name}</Text>
+
+            <Text className="text-xl font-bold mt-4 text-gray-800">{userInfo.userName || 'Người dùng'}</Text>
             <Text className="text-gray-500 text-sm">{isOwner ? 'Trang cá nhân của bạn' : 'Người dùng FindIt'}</Text>
 
             <View className="flex-row mt-6 w-full px-10 justify-around">
                 <View className="items-center">
-                    <Text className="text-lg font-bold text-gray-800">{posts.length}</Text>
+                    <Text className="text-md font-bold text-gray-800">{posts.length}</Text>
                     <Text className="text-xs text-gray-400">Bài đăng</Text>
                 </View>
                 <View className="w-[1px] h-8 bg-gray-100" />
                 <View className="items-center">
-                    <Text className="text-lg font-bold text-gray-800">
-                        {posts.filter(p => p.status === 'resolved').length}
+                    <Text className="text-md font-bold text-gray-800">
+                        {userInfo.time}
                     </Text>
-                    <Text className="text-xs text-gray-400">Thành công</Text>
+                    <Text className="text-xs text-gray-400">Ngày tham gia</Text>
                 </View>
             </View>
         </View>
@@ -97,8 +121,8 @@ export default function UserProfileScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50" edges={['bottom']}>
-            <Stack.Screen options={{ 
-                headerShown: true, 
+            <Stack.Screen options={{
+                headerShown: true,
                 title: isOwner ? 'Tường của tôi' : 'Trang cá nhân',
                 headerShadowVisible: false,
                 headerTitleStyle: { fontWeight: 'bold' },
@@ -124,14 +148,14 @@ export default function UserProfileScreen() {
                     ) : null
                 }
                 refreshControl={
-                    <RefreshControl 
-                        refreshing={false} 
-                        onRefresh={onRefresh} 
-                        colors={Colors ? [Colors.light.tint] : ['#007AFF']} 
+                    <RefreshControl
+                        refreshing={false}
+                        onRefresh={onRefresh}
+                        colors={Colors ? [Colors.light.tint] : ['#007AFF']}
                     />
                 }
             />
-            
+
             <LoadingOverlay isLoading={isLoading} />
         </SafeAreaView>
     );

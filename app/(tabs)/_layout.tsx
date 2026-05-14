@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  
   return (
     <Tabs
       screenOptions={{
@@ -29,6 +30,7 @@ export default function TabLayout() {
           fontWeight: 'bold',
           fontFamily: Platform.select({ ios: 'Nunito-Bold', android: 'sans-serif-medium' })
         },
+        
       }}>
       <Tabs.Screen name="index" options={{
         title: 'Trang chủ',

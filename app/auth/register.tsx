@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Alert, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
 
-import { auth } from "@/configs/firebase-config";
+import LoadingOverlay from "@/components/loading-layout";
 import { Colors } from "@/constants/theme";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { registerAccount } from "@/services/user-service";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Register() {
@@ -16,48 +16,24 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleRegister = async () => {
-
-        if (!name || !email || !password || !confirmPassword) {
-            Alert.alert('Vui lòng nhập đầy đủ tên, email, mật khẩu và xác nhận mật khẩu');
-            return;
-        }
-
-        if (password.length < 8) {
-            Alert.alert('Mật khẩu phải có ít nhất 8 ký tự');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            Alert.alert('Mật khẩu không khớp');
-            return;
-        }
-
-        setLoading(true);
+        setIsLoading(true);
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            await updateProfile(user, {
-                displayName: name,
-            });
-            Alert.alert('Đăng ký thành công!');
+            await registerAccount({
+                email : email,
+                password : password,
+                confirmPassword: confirmPassword,
+                userName: name,
+            })
+            setIsLoading(false);
+            Alert.alert('Thông báo', 'Đăng ký thành công');
             router.replace('/(tabs)');
         } catch (error: any) {
-
-            let msg = error.message;
-
-            if (msg.includes('auth/invalid-email')) msg = 'Email không hợp lệ';
-            if (msg.includes('auth/email-already-in-use')) msg = 'Email đã tồn tại';
-            if (msg.includes('auth/weak-password')) msg = 'Mật khẩu không hợp lệ';
-
-            Alert.alert('Đăng ký không thành công!', msg);
-        } finally {
-            setLoading(false);
+            setIsLoading(false);
+            Alert.alert('Lỗi', error.message);
         }
-
     };
 
     return (
@@ -127,7 +103,7 @@ export default function Register() {
                                 </View>
 
                                 <TouchableOpacity onPress={handleRegister} className="h-[50px] w-full bg-[#007AFF] rounded-[10px] items-center justify-center border border-[#999]"
-                                    disabled={loading}
+                                    disabled={isLoading}
                                 >
                                     <Text className="text-white text-base font-medium">Đăng ký</Text>
                                 </TouchableOpacity>
@@ -138,6 +114,7 @@ export default function Register() {
 
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+            <LoadingOverlay isLoading={isLoading} />
         </SafeAreaView >
     );
 }

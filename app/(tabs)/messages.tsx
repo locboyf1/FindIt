@@ -1,3 +1,4 @@
+import { ScreenWrapper } from "@/components/screen-wrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
@@ -39,51 +40,52 @@ export default function Index() {
 
   return (
     <SafeAreaView className="flex-1">
-      <View className="flex-row justify-between items-center py-5 px-5 border-b border-[#ccc]">
-        <Text className="text-center font-[Nunito-Bold] text-[30px]">Tin nhắn</Text>
-        <View className="flex-row gap-[15px]">
-          <TouchableOpacity>
-            <Ionicons name="search-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="add-outline" size={24} color="black" />
-          </TouchableOpacity>
+      <ScreenWrapper>
+        <View className="flex-row justify-between items-center py-5 px-5 border-b border-[#ccc]">
+          <Text className="text-center font-[Nunito-Bold] text-[30px]">Tin nhắn</Text>
+          <View className="flex-row gap-[15px]">
+            <TouchableOpacity>
+              <Ionicons name="search-outline" size={24} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Ionicons name="add-outline" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View className="flex-1 px-5 py-5">
-        <FlatList contentContainerStyle={{ gap: 20 }}
-          data={mockData}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View className="flex-row w-full items-center gap-2.5">
-              <View className="w-[60px] h-[60px] rounded-full overflow-hidden border border-black items-center justify-center">
-                <Image source={{ uri: item.image }} className="w-full h-full rounded-full" resizeMode="cover" />
-              </View>
-              <View className="flex-1 gap-[5px]">
-                <View className="flex-row items-center gap-[5px] justify-between">
-                  <TouchableOpacity className="flex-1">
-                    <Text className="font-[Nunito-Bold] text-[16px]">{item.title}</Text>
-                  </TouchableOpacity>
-                  <View className="flex-row items-center gap-[5px]">
-                    <Text className="font-[Nunito-Regular] text-[12px]">{item.time}</Text>
-                    <View className="items-center gap-[5px]">
-                      <View className="py-[5px] w-10 rounded-[25px] bg-[#1F8CF9] items-center justify-center">
-                        <Text className="font-[Nunito-Bold] text-[10px] color-white">{item.number_unread_message}</Text>
+        <View className="flex-1 px-5 py-5">
+          <FlatList contentContainerStyle={{ gap: 20 }}
+            data={mockData}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View className="flex-row w-full items-center gap-2.5">
+                <View className="w-[60px] h-[60px] rounded-full overflow-hidden border border-black items-center justify-center">
+                  <Image source={{ uri: item.image }} className="w-full h-full rounded-full" resizeMode="cover" />
+                </View>
+                <View className="flex-1 gap-[5px]">
+                  <View className="flex-row items-center gap-[5px] justify-between">
+                    <TouchableOpacity className="flex-1">
+                      <Text className="font-[Nunito-Bold] text-[16px]">{item.title}</Text>
+                    </TouchableOpacity>
+                    <View className="flex-row items-center gap-[5px]">
+                      <Text className="font-[Nunito-Regular] text-[12px]">{item.time}</Text>
+                      <View className="items-center gap-[5px]">
+                        <View className="py-[5px] w-10 rounded-[25px] bg-[#1F8CF9] items-center justify-center">
+                          <Text className="font-[Nunito-Bold] text-[10px] color-white">{item.number_unread_message}</Text>
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View className="flex-row items-center gap-[5px] w-full justify-between">
-                  <View className="flex-1">
-                    <TextTicker duration={10000} style={{ fontFamily: 'Nunito-Regular', fontSize: 14, color: '#666' }}>{item.last_message}</TextTicker>
+                  <View className="flex-row items-center gap-[5px] w-full justify-between">
+                    <View className="flex-1">
+                      <TextTicker duration={10000} style={{ fontFamily: 'Nunito-Regular', fontSize: 14, color: '#666' }}>{item.last_message}</TextTicker>
+                    </View>
+                    <Ionicons name="chatbox-outline" size={24} color="black" />
                   </View>
-                  <Ionicons name="chatbox-outline" size={24} color="black" />
                 </View>
               </View>
-            </View>
-          )}
-        />
-      </View>
+            )}
+          />
+        </View></ScreenWrapper>
     </SafeAreaView>
   )
 }

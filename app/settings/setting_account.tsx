@@ -1,13 +1,11 @@
 import LoadingOverlay from "@/components/loading-layout";
-import { auth, storage } from "@/configs/firebase-config";
+import { auth } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
 import { DEFAULT_AVATAR } from "@/constants/user";
-import { updateUserInPost } from "@/services/post-service";
+import { changePassword, updateAccount } from "@/services/user-service";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateProfile } from "firebase/auth";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -47,105 +45,36 @@ export default function edit_profile() {
         }
     }
 
-    const uploadImage = async (image: string) => {
-        try {
-            const response = await fetch(image);
-            const blob = await response.blob();
-
-            const filename = 'avatars/' + Date.now() + '-' + Math.random().toString(36).substring(7) + '.jpg';
-            const storageRef = ref(storage, filename);
-
-            await uploadBytes(storageRef, blob);
-
-            const downloadUrl = await getDownloadURL(storageRef);
-            return downloadUrl;
-        } catch (error) {
-            console.log("Có lỗi khi upload ảnh: ", error);
-            throw error;
-        }
-    }
-
     const handleSave = async () => {
-        if (!user) {
-            Alert.alert('Lỗi', 'Bạn chưa đăng nhập');
-            return;
-        }
-
-        if (!name.trim()) {
-            Alert.alert('Lỗi', 'Tên hiển thị không được để trống.');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const oldPhotoUrl = user.photoURL;
-            let finalPhotoUrl = oldPhotoUrl;
-            let hasNewImage = false;
-            if (avatar && !avatar.startsWith('http')) {
-                finalPhotoUrl = await uploadImage(avatar);
-                hasNewImage = true;
-            }
-            await updateProfile(user, {
-                displayName: name,
-                photoURL: finalPhotoUrl
-            })
-
-            updateUserInPost(user.uid, name, finalPhotoUrl || '');
-
-            if (hasNewImage && oldPhotoUrl && oldPhotoUrl.includes('firebasestorage.googleapis.com')) {
-                try {
-                    const oldImageRef = ref(storage, oldPhotoUrl);
-                    await deleteObject(oldImageRef);
-                } catch (delError) {
-                    console.log("Lỗi khi xóa tệp ảnh đại diện: ", delError);
-                }
-            }
-
+       setIsLoading(true);
+       try{
+           await updateAccount({
+                name: name.trim(),
+                avatar: avatar || null
+           });
             Alert.alert('Thành công', 'Cập nhật thông tin thành công');
             router.back();
-        } catch (error) {
-            console.log("Có lỗi khi cập nhật thông tin: ", error);
-            Alert.alert('Lỗi', 'Có lỗi khi cập nhật thông tin.');
+        } catch (error: any) {
+            Alert.alert('Lỗi', error.message);
         } finally {
             setIsLoading(false);
         }
     }
 
     const handleChangePassword = async () => {
-        if (!user) {
-            Alert.alert('Lỗi', 'Bạn chưa đăng nhập');
-            return;
-        }
-
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu mới');
-            return;
-        }
-
-        if (newPassword.length < 8) {
-            Alert.alert('Lỗi', 'Mật khẩu mới phải có ít nhất 8 ký tự');
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            Alert.alert('Lỗi', 'Mật khẩu mới và xác nhận mật khẩu mới không khớp');
-            return;
-        }
-
         setIsLoading(true);
-        try {
-            const credential = EmailAuthProvider.credential(user.email || '', currentPassword);
-            await reauthenticateWithCredential(user, credential);
-            await updatePassword(user, newPassword);
+        try{
+            await changePassword({
+                currentPassword: currentPassword.trim(),
+                newPassword: newPassword.trim(),
+                confirmPassword: confirmPassword.trim()
+            });
             Alert.alert('Thành công', 'Đổi mật khẩu thành công');
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error: any) {
-            console.log("Có lỗi khi đổi mật khẩu: ", error);
-
-            Alert.alert('Lỗi', 'Sai mật khẩu');
-            setCurrentPassword('');
+            Alert.alert('Lỗi', error.message);
         } finally {
             setIsLoading(false);
         }

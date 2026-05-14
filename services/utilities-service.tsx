@@ -1,5 +1,7 @@
+import { storage } from "@/configs/firebase-config";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-const formatTime = (timestamp: any) => {
+export const formatTime = (timestamp: any) => {
     if (!timestamp) return 'Vừa xong';
 
     const date = timestamp.toDate();
@@ -12,7 +14,7 @@ const formatTime = (timestamp: any) => {
     return Math.floor(diff / 86400) + ' ngày trước';
 };
 
-const normalizeLocation = (text: string | null) => {
+export const normalizeLocation = (text: string | null) => {
     if (!text) return "";
     return text.toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -20,7 +22,7 @@ const normalizeLocation = (text: string | null) => {
         .replace(/đ/g, "d").trim();
 };
 
-const isMatchLocation = (name1?: string, name2?: string) => {
+export const isMatchLocation = (name1?: string, name2?: string) => {
     if (!name1 || !name2) return false;
     const normName1 = normalizeLocation(name1);
     const normName2 = normalizeLocation(name2);
@@ -31,7 +33,23 @@ const isMatchLocation = (name1?: string, name2?: string) => {
     return normName1.includes(normName2) || normName2.includes(normName1);
 };
 
-export { formatTime, isMatchLocation, normalizeLocation };
+export const uploadImage = async (image:string, folder:string) => {
+    try {
+        const response = await fetch(image);
+        const blob = await response.blob();
+
+        const filename = folder + '/' + Date.now() + '-' + Math.random().toString(36).substring(7) + '.jpg';
+        const storageRef = ref(storage, filename);
+
+        await uploadBytes(storageRef, blob);
+
+        const downloadUrl = await getDownloadURL(storageRef);
+        return downloadUrl;
+    } catch (error) {
+        console.log("Có lỗi khi upload ảnh: ", error);
+        throw error;
+    }
+}
 
 
 

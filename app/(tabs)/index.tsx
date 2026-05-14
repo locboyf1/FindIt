@@ -1,4 +1,5 @@
 import LoadingOverlay from "@/components/loading-layout";
+import { ScreenWrapper } from "@/components/screen-wrapper";
 import { auth } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
 import { getPosts } from "@/services/post-service";
@@ -72,55 +73,57 @@ export default function Index() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row justify-between items-center pt-[30px] px-5 pb-[10px] border-b border-[#ccc]">
-        <TouchableOpacity className="w-[50px] h-[50px]" onPress={handleMenu}>
-          <Image source={require('../../assets/images/icon.png')} className="w-full h-full rounded-[15px]" resizeMode="contain" />
-        </TouchableOpacity>
-        <View className="flex-row items-center gap-5">
-          <TouchableOpacity onPress={handleFilter} className="flex-row items-center gap-2.5">
-            <Ionicons name="search" size={24} color="#333" />
+      <ScreenWrapper>
+        <View className="flex-row justify-between items-center pt-[30px] px-5 pb-[10px] border-b border-[#ccc]">
+          <TouchableOpacity className="w-[50px] h-[50px]" onPress={handleMenu}>
+            <Image source={require('../../assets/images/icon.png')} className="w-full h-full rounded-[15px]" resizeMode="contain" />
           </TouchableOpacity>
+          <View className="flex-row items-center gap-5">
+            <TouchableOpacity onPress={handleFilter} className="flex-row items-center gap-2.5">
+              <Ionicons name="search" size={24} color="#333" />
+            </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center gap-2.5" onPress={() => { router.push('../post/create-post') }}>
-            <Ionicons name="add" size={24} color="#333" />
-          </TouchableOpacity>
+            <TouchableOpacity className="flex-row items-center gap-2.5" onPress={() => { router.push('../post/create-post') }}>
+              <Ionicons name="add" size={24} color="#333" />
+            </TouchableOpacity>
 
+          </View>
         </View>
-      </View>
 
-      <View>
-        {showMenu &&
-          <View className="flex-col justify-between items-center px-5 py-2.5 absolute w-1/2 top-0 left-0 z-10 gap-px">
-            <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={()=>{router.push('../settings/setting_account')}}>
-              <Text className="text-center font-[Nunito-Bold]">Tài khoản</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLogout} className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]">
-              <Text className="text-center font-[Nunito-Bold]">Đăng xuất</Text>
-            </TouchableOpacity>
+        <View>
+          {showMenu &&
+            <View className="flex-col justify-between items-center px-5 py-2.5 absolute w-1/2 top-0 left-0 z-10 gap-px">
+              <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={() => { router.push('../settings/setting_account') }}>
+                <Text className="text-center font-[Nunito-Bold]">Tài khoản</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout} className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]">
+                <Text className="text-center font-[Nunito-Bold]">Đăng xuất</Text>
+              </TouchableOpacity>
+            </View>}
+
+          {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] z-10">
+            {renderFilterButton('Tất cả', 'all')}
+            {renderFilterButton('Mất đồ', 'lost')}
+            {renderFilterButton('Thấy đồ', 'found')}
           </View>}
 
-        {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] z-10">
-          {renderFilterButton('Tất cả', 'all')}
-          {renderFilterButton('Mất đồ', 'lost')}
-          {renderFilterButton('Thấy đồ', 'found')}
-        </View>}
-
-        <FlatList
-          data={posts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' || activeFilter === 'found')) ? (
-              <PostCard item={item} onPress={() => { router.push({ pathname: '../post/detail-post', params: { id: item.id } }) }} />
-            ) : null
-          )}
-          contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={false} onRefresh={onRefresh} colors={[Colors.light.tint]} />
-          }
-        />
-      </View>
-      <LoadingOverlay isLoading={isLoading} />
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' || activeFilter === 'found')) ? (
+                <PostCard item={item} onPress={() => { router.push({ pathname: '../post/detail-post', params: { id: item.id } }) }} />
+              ) : null
+            )}
+            contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={false} onRefresh={onRefresh} colors={[Colors.light.tint]} />
+            }
+          />
+        </View>
+        <LoadingOverlay isLoading={isLoading} />
+      </ScreenWrapper>
     </SafeAreaView>
   )
 }

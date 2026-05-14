@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
 
-import { auth } from "@/configs/firebase-config";
+import LoadingOverlay from "@/components/loading-layout";
 import { Colors } from "@/constants/theme";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { loginAccount } from "@/services/user-service";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
@@ -16,44 +16,21 @@ export default function Login() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async () => {
-
-        if (!email || !password) {
-            Alert.alert('Vui lòng nhập đầy đủ email và mật khẩu');
-            return;
-        }
-
-        if (!email.includes('@')) {
-            Alert.alert('Email không hợp lệ');
-            return;
-        }
-
-        if (password.length < 8) {
-            Alert.alert('Mật khẩu không hợp lệ');
-            return;
-        }
-
-        setLoading(true);
+        setIsLoading(true);
         try {
-
-            await signInWithEmailAndPassword(auth, email, password);
+            await loginAccount({
+                email: email.trim(),
+                password: password.trim()
+            });
+            setIsLoading(false);
+            Alert.alert('Thông báo', 'Đăng nhập thành công!');
             router.replace('/(tabs)');
-
         } catch (error: any) {
-            console.log(error.message);
-
-            let msg = error.message;
-
-            if (msg.includes('auth/invalid-email')) msg = 'Email không hợp lệ';
-            if (msg.includes('auth/invalid-credential')) msg = 'Sai email hoặc mật khẩu';
-            if (msg.includes('auth/user-not-found')) msg = 'Tài khoản không tồn tại';
-            if (msg.includes('auth/wrong-password')) msg = 'Sai mật khẩu';
-
-            Alert.alert('Đăng nhập thất bại!', msg);
-        } finally {
-            setLoading(false);
+            setIsLoading(false);
+            Alert.alert('Lỗi', error.message);
         }
     };
 
@@ -142,7 +119,7 @@ export default function Login() {
                     </View>
 
                     <TouchableOpacity onPress={handleLogin} className="h-[50px] w-full bg-[#007AFF] rounded-[10px] items-center justify-center border border-[#999]"
-                        disabled={loading}
+                        disabled={isLoading}
                     >
                         <Text className="text-white text-base font-medium">Đăng nhập</Text>
                     </TouchableOpacity>
@@ -165,6 +142,7 @@ export default function Login() {
 
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
+            <LoadingOverlay isLoading={isLoading} />
         </SafeAreaView>
     );
 }
