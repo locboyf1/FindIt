@@ -99,8 +99,8 @@ export const getPosts = async () => {
                 time: formatTime(data.createdAt),
             };
         }).sort((a, b) => {
-            const timeA = a.createdAt.seconds();
-            const timeB = b.createdAt.seconds();
+            const timeA = a.createdAt?.seconds || 0;
+            const timeB = b.createdAt?.seconds || 0;
             return timeB - timeA;
         });
     } catch (error) {
@@ -205,7 +205,7 @@ export const updatePost = async (id: string, data: any) => {
     
 }
 
-export const getPostsByUserId = async (userId: string) => {
+export const getPostsByUserId = async (userId: string, isOwner: boolean) => {
     try {
         const q = query(collection(db, 'posts'), where('userId', '==', userId));
         const querySnapshot = await getDocs(q);
@@ -235,11 +235,11 @@ export const getPostsByUserId = async (userId: string) => {
                 isBanned: data.isBanned,
             };
         }).sort((a, b) => {
-            const timeA = a.createdAt.seconds();
-            const timeB = b.createdAt.seconds();
+            const timeA = a.createdAt?.seconds || 0;
+            const timeB = b.createdAt?.seconds || 0;
             return timeB - timeA;
         });
-        if(auth.currentUser?.uid == userId) {
+        if(isOwner) {
             return posts;
         }else{
             return posts.filter((post: any) => !post.isHidden && !post.isBanned);

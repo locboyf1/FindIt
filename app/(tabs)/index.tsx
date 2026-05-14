@@ -109,7 +109,7 @@ export default function Index() {
           data={posts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' && item.type === 'resolved') || (activeFilter === 'found' && item.type === 'returned')) ? (
+            (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' || activeFilter === 'found')) ? (
               <PostCard item={item} onPress={() => { router.push({ pathname: '../post/detail-post', params: { id: item.id } }) }} />
             ) : null
           )}

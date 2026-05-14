@@ -6,7 +6,7 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 export type Post = {
     id: string;
     title: string;
-    type: 'lost' | 'found' | 'returned' | 'resolved';
+    type: 'lost' | 'found';
     location: string;
     time: string;
     image: string;
@@ -21,8 +21,6 @@ export default function PostCard({ item, onPress }: { item: Post, onPress: () =>
         switch (type) {
             case 'lost': return '#fa675fff';
             case 'found': return '#3293fbff';
-            case 'resolved': return Colors.light.success;
-            case 'returned': return Colors.light.success;
             default: return Colors.light.tint;
         }
     };
@@ -31,8 +29,6 @@ export default function PostCard({ item, onPress }: { item: Post, onPress: () =>
         switch (type) {
             case 'lost': return 'Mất đồ';
             case 'found': return 'Tìm thấy';
-            case 'resolved': return 'Đã giải quyết';
-            case 'returned': return 'Đã trả lại';
             default: return type.toUpperCase();
         }
     };
