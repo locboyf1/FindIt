@@ -42,7 +42,6 @@ type Coords = {
 export default function UpdatePostScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
-    const [post, setPost] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const [title, setTitle] = useState('');
@@ -92,7 +91,6 @@ export default function UpdatePostScreen() {
                 router.back();
                 return;
             }
-            setPost(fetch_post);
             setTitle(fetch_post.title);
             setDescription(fetch_post.description);
             setLocation(fetch_post.location);
@@ -106,10 +104,12 @@ export default function UpdatePostScreen() {
                 id: fetch_post.wardId,
                 name: fetch_post.wardName
             });
-            setCoords({
+            if(fetch_post.geo){
+                setCoords({
                 latitude: fetch_post.geo.lat,
                 longitude: fetch_post.geo.lng,
-            });
+            })
+        }
         } catch (error) {
             console.error('Lỗi lúc lấy bài viết: ' + error);
             Alert.alert('Lỗi', 'Không thể lấy bài viết. Vui lòng thử lại.');
@@ -211,8 +211,8 @@ export default function UpdatePostScreen() {
             if (geocode.length > 0) {
                 const address = geocode[0];
 
-                const curProvince = address.city || address.region;
-                const curWard = address.subregion;
+                const curProvince = address.region || address.city;
+                const curWard = address.subregion || address.city;
                 if (curProvince) {
                     const matchedProvince = provinceData.find(p => isMatchLocation(p.name, curProvince));
                     if (matchedProvince) {

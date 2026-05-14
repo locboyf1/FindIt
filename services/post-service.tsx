@@ -1,6 +1,6 @@
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, updateDoc, where, writeBatch } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "../configs/firebase-config";
+import { auth, db, storage } from "../configs/firebase-config";
 import { formatTime } from "./utilities-service";
 
 export const createPost = async (data: {
@@ -12,10 +12,14 @@ export const createPost = async (data: {
     coords?: { latitude: number, longitude: number } | null;
     type: 'lost' | 'found';
     image: string;
-    userId: string;
-    userName?: string | null;
-    userAvatar?: string | null;
 }) => {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error('Bạn cần đăng nhập để thực hiện hành động này.');
+    }
+
     try {
         const imageUrl = await uploadImage(data.image);
 
@@ -33,9 +37,9 @@ export const createPost = async (data: {
             } : null,
             type: data.type,
             image: imageUrl,
-            userId: data.userId,
-            userName: data.userName,
-            userAvatar: data.userAvatar || null,
+            userId: user.uid,
+            userName: user.displayName,
+            userAvatar: user.photoURL || null,
             createdAt: serverTimestamp(),
             status: 'open',
             isHidden: false,

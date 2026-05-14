@@ -110,15 +110,11 @@ export default function CreatePostScreen() {
                 coords: coords,
                 type,
                 image: image,
-                userId: auth.currentUser.uid,
-                userName: auth.currentUser.displayName,
-                userAvatar: auth.currentUser.photoURL
             });
 
             Alert.alert('Thành công', 'Bài viết đã được đăng!');
             router.back();
         } catch (error) {
-            console.error('Lỗi lúc đăng bài: ' + error);
             Alert.alert('Lỗi', 'Không thể đăng bài. Vui lòng thử lại.');
         } finally {
             setIsLoading(false);
@@ -148,6 +144,8 @@ export default function CreatePostScreen() {
     };
 
     const getLocation = async (showAlert = false) => {
+
+        setIsLoading(true);
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -181,14 +179,14 @@ export default function CreatePostScreen() {
             if (geocode.length > 0) {
                 const address = geocode[0];
 
-                const curProvince = address.city || address.region;
-                const curWard = address.subregion;
+                const curProvince = address.region || address.city;
+                const curWard = address.subregion || address.city;
                 if (curProvince) {
                     const matchedProvince = provinceData.find(p => isMatchLocation(p.name, curProvince));
                     if (matchedProvince) {
                         setSelectedProvince({ id: matchedProvince.code, name: matchedProvince.name });
                         setWards(wardData.filter(w => w.province_code === matchedProvince.code));
-
+                        
                         if (curWard) {
                             const matchedWard = wardData.find(w => isMatchLocation(w.name, curWard) && w.province_code === matchedProvince.code);
                             if (matchedWard) {
@@ -205,6 +203,8 @@ export default function CreatePostScreen() {
         } catch (error) {
             console.error('Lỗi khi lấy vị trí hiện tại: ' + error);
             Alert.alert('Lỗi', 'Không thể lấy vị trí hiện tại. Vui lòng thử lại.');
+        }finally{
+            setIsLoading(false);
         }
     }
 

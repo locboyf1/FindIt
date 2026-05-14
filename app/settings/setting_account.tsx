@@ -1,7 +1,7 @@
 import LoadingOverlay from "@/components/loading-layout";
-import { DEFAULT_AVATAR } from "@/configs/account-config";
 import { auth, storage } from "@/configs/firebase-config";
 import { Colors } from "@/constants/theme";
+import { DEFAULT_AVATAR } from "@/constants/user";
 import { updateUserInPost } from "@/services/post-service";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
@@ -226,7 +226,7 @@ export default function edit_profile() {
                             <Text className="text-sm font-semibold text-[#555] mb-2 ml-1">Mật khẩu mới</Text>
                             <TextInput
                                 className="bg-[#f9f9f9] p-[15px] rounded-[12px] border border-[#eee] text-base text-[#333]"
-                                placeholder="Tối thiểu 6 ký tự..."
+                                placeholder="Tối thiểu 8 ký tự..."
                                 value={newPassword}
                                 onChangeText={setNewPassword}
                                 secureTextEntry

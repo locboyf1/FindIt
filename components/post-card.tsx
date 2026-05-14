@@ -1,5 +1,5 @@
-import { DEFAULT_AVATAR } from "@/configs/account-config";
 import { Colors } from "@/constants/theme";
+import { DEFAULT_AVATAR } from "@/constants/user";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 

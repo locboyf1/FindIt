@@ -92,7 +92,7 @@ export default function Index() {
         </View>
       </View>
 
-      <View className="flex-1">
+      <View>
         {showMenu &&
           <View className="flex-col justify-between items-center px-5 py-2.5 absolute w-1/2 top-0 left-0 z-10 gap-px">
             <TouchableOpacity className="w-full py-[5px] px-5 bg-white/80 rounded-[10px] border border-[#ccc]" onPress={handleEditProfile}>
@@ -103,7 +103,7 @@ export default function Index() {
             </TouchableOpacity>
           </View>}
 
-        {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] top-[10px] z-10">
+        {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] z-10">
           {renderFilterButton('Tất cả', 'all')}
           {renderFilterButton('Mất đồ', 'lost')}
           {renderFilterButton('Thấy đồ', 'found')}

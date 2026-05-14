@@ -1,8 +1,8 @@
 import LoadingOverlay from "@/components/loading-layout";
-import { DEFAULT_AVATAR } from "@/configs/account-config";
 import { auth } from "@/configs/firebase-config";
 import { EMPTY_POST } from "@/constants/post";
 import { Colors } from "@/constants/theme";
+import { DEFAULT_AVATAR } from "@/constants/user";
 import { getPostById } from "@/services/post-service";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
