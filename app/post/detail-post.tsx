@@ -137,7 +137,7 @@ export default function DetailPostScreen() {
                             </View>
                         </TouchableOpacity>
                         {post.userId != auth.currentUser?.uid && (
-                            <TouchableOpacity className="flex-row items-center bg-[#007AFF] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={() => { Alert.alert('Thông báo', 'Tính năng chưa thêm') }}>
+                            <TouchableOpacity className="flex-row items-center bg-[#007AFF] px-[15px] py-2.5 rounded-[20px] gap-[5px]" disabled={isLoading} onPress={() => { router.push({pathname: '/chat/chat', params: {id: post.userId}}) }}>
                                 <Ionicons name="chatbubble-ellipses" size={18} color={'#fff'} />
                                 <Text className="text-white font-bold text-sm">Liên hệ</Text>
                             </TouchableOpacity>

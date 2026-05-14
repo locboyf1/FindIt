@@ -1,5 +1,6 @@
 import { ScreenWrapper } from "@/components/screen-wrapper";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -63,7 +64,7 @@ export default function Index() {
                 </View>
                 <View className="flex-1 gap-[5px]">
                   <View className="flex-row items-center gap-[5px] justify-between">
-                    <TouchableOpacity className="flex-1">
+                    <TouchableOpacity className="flex-1" onPress={()=>{router.push({pathname: '/chat/chat', params: {id: 1}})}}>
                       <Text className="font-[Nunito-Bold] text-[16px]">{item.title}</Text>
                     </TouchableOpacity>
                     <View className="flex-row items-center gap-[5px]">
@@ -85,7 +86,8 @@ export default function Index() {
               </View>
             )}
           />
-        </View></ScreenWrapper>
+        </View>
+      </ScreenWrapper>
     </SafeAreaView>
   )
 }

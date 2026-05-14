@@ -101,7 +101,7 @@ export default function Index() {
               </TouchableOpacity>
             </View>}
 
-          {showFilter && <View className="flex-row justify-evenly items-center px-2.5 py-2.5 gap-3 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] z-10">
+          {showFilter && <View className="flex-row justify-between items-center px-2.5 py-2.5 bg-white rounded-[20px] border w-[60%] border-[#ccc] absolute left-[20%] z-10">
             {renderFilterButton('Tất cả', 'all')}
             {renderFilterButton('Mất đồ', 'lost')}
             {renderFilterButton('Thấy đồ', 'found')}
@@ -111,7 +111,7 @@ export default function Index() {
             data={posts}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase() || (activeFilter === 'lost' || activeFilter === 'found')) ? (
+              (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase()) ? (
                 <PostCard item={item} onPress={() => { router.push({ pathname: '../post/detail-post', params: { id: item.id } }) }} />
               ) : null
             )}

@@ -1,5 +1,7 @@
 import { storage } from "@/configs/firebase-config";
+import CryptoJS from 'crypto-js';
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
 
 export const formatTime = (timestamp: any) => {
     if (!timestamp) return 'Vừa xong';
@@ -51,6 +53,16 @@ export const uploadImage = async (image:string, folder:string) => {
     }
 }
 
-
+export const decryptMessage = (cipherText: string, secretKey: string) => {
+    if (!cipherText || !secretKey) return "";
+    try {
+        const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
+        const originalText = bytes.toString(CryptoJS.enc.Utf8);
+        
+        return originalText || "Tin nhắn không thể giải mã"; 
+    } catch (error) {
+        return "Lỗi giải mã";
+    }
+};
 
 
