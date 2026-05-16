@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "FindIt",
-    "slug": "findit",
+    "name": "finditapp",
+    "slug": "finditapp",
     "owner": "boy37f1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "findit",
+    "scheme": "finditapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -19,11 +19,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.anonymous.findit",
+      "package": "com.finditapp",
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.findit"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",

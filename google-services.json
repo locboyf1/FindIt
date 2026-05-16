@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:642517302555:android:985fa562e6cde67edfa7be",
+        "mobilesdk_app_id": "1:642517302555:android:30945f6e07631c55dfa7be",
         "android_client_info": {
-          "package_name": "com.anonymous.findit"
+          "package_name": "com.finditapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "642517302555-erafuachb2ct8iuo5hovcj99lh9kg6e3.apps.googleusercontent.com",
+          "client_id": "642517302555-qg5nob4uilqcm7j9pmpiciue934f3sjg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.anonymous.findit",
-            "certificate_hash": "3c458a7fd5e87828a549e122ae6a2c231b5b8cac"
+            "package_name": "com.finditapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {

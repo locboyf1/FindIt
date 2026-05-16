@@ -23,9 +23,9 @@ export default function Login() {
 
     useEffect(() => {
         GoogleSignin.configure({
-        webClientId: googleConfig.webClientId, 
-        offlineAccess: true,
-    });
+            webClientId: googleConfig.webClientId,
+            offlineAccess: true,
+        });
     }, []);
 
     const handleLogin = async () => {
