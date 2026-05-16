@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "642517302555",
+    "project_id": "fintit-44beb",
+    "storage_bucket": "fintit-44beb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642517302555:android:985fa562e6cde67edfa7be",
+        "android_client_info": {
+          "package_name": "com.anonymous.findit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642517302555-erafuachb2ct8iuo5hovcj99lh9kg6e3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.findit",
+            "certificate_hash": "3c458a7fd5e87828a549e122ae6a2c231b5b8cac"
+          }
+        },
+        {
+          "client_id": "642517302555-v9meqv1mkqv9plsivgjggo4p7lpmujho.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu5NnTGML-dA8QPSzNv9ZwVVuVyIrv5Hs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642517302555-v9meqv1mkqv9plsivgjggo4p7lpmujho.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -18,17 +18,18 @@ export const getOrCreatePrivateChat = async (targetUserId: string, targetUserNam
 
             await setDoc(roomRef, {
                 type: 'private',
-                participantIds: [currentUser.uid, targetUserId],
-                participantsInfo: {
-                    [currentUser.uid]: { name: currentUser.displayName, avatar: currentUser.photoURL },
-                    [targetUserId]: { name: targetUserName, avatar: targetUserAvatar }
+                usersIds: [currentUser.uid, targetUserId],
+                usersInfos: {
+                    [currentUser.uid]: { userName: currentUser.displayName, userAvatar: currentUser.photoURL },
+                    [targetUserId]: { userName: targetUserName, userAvatar: targetUserAvatar }
                 },
                 secretKey: roomSecretKey,
-                updatedAt: serverTimestamp(),
+                createdAt: serverTimestamp(),
                 unreadCounts: {
                     [currentUser.uid]: 0,
                     [targetUserId]: 0
-                }
+                },
+                lastMessage: null,
             });
         }
         return roomId;
@@ -70,7 +71,6 @@ export const sendMessage = async (roomId: string, text: string, receiverIds: str
             senderId: currentUser.uid,
             timestamp: serverTimestamp(),
         },
-        updatedAt: serverTimestamp(),
         ...unreadUpdates
     });
 
@@ -86,3 +86,9 @@ export const markRoomAsRead = async (roomId: string) => {
         [`unreadCounts.${currentUser.uid}`]: 0
     });
 };
+
+export const getOtherUserInfos = (userInfos: any, userId: string) => {
+    if (!userInfos) return [];
+    const infos = Object.entries(userInfos).filter(([key, value]) => key !== userId).map(([key, value]) => ({ key, ...value as any }));
+    return infos;
+}

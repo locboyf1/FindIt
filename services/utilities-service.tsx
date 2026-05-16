@@ -13,7 +13,9 @@ export const formatTime = (timestamp: any) => {
     if (diff < 60) return 'Vừa xong';
     if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
     if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
-    return Math.floor(diff / 86400) + ' ngày trước';
+    if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+    if (diff < 86400 * 30) return Math.floor(diff / (86400 * 7)) + ' tuần trước';
+    return Math.floor(diff / (86400 * 30)) + ' tháng trước';
 };
 
 export const normalizeLocation = (text: string | null) => {
@@ -59,9 +61,9 @@ export const decryptMessage = (cipherText: string, secretKey: string) => {
         const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
         const originalText = bytes.toString(CryptoJS.enc.Utf8);
         
-        return originalText || "Tin nhắn không thể giải mã"; 
-    } catch (error) {
-        return "Lỗi giải mã";
+        return originalText
+    } catch (error: any) {
+        return error.message;
     }
 };
 

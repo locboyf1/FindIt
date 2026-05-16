@@ -1,9 +1,9 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import React from 'react';
 import { Platform, Text, View } from 'react-native';
+import 'react-native-get-random-values';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

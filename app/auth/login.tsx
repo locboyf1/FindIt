@@ -1,13 +1,16 @@
-import { AntDesign } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import { useState } from "react";
-import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-
-
 import LoadingOverlay from "@/components/loading-layout";
+import { googleConfig } from "@/configs/google-config";
 import { Colors } from "@/constants/theme";
-import { loginAccount } from "@/services/user-service";
+import { loginAccount, loginWithGoogle } from "@/services/user-service";
+import { AntDesign } from "@expo/vector-icons";
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { Stack, useRouter } from "expo-router";
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect, useState } from "react";
+import { Alert, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+;
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
     const router = useRouter();
@@ -17,6 +20,13 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        GoogleSignin.configure({
+        webClientId: googleConfig.webClientId, 
+        offlineAccess: true,
+    });
+    }, []);
 
     const handleLogin = async () => {
         setIsLoading(true);
@@ -30,6 +40,34 @@ export default function Login() {
             router.replace('/(tabs)');
         } catch (error: any) {
             setIsLoading(false);
+            Alert.alert('Lỗi', error.message);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            const idToken = userInfo.data?.idToken;
+            await loginWithGoogle(idToken || '');
+            console.log("Đăng nhập thành công, ID Token:", idToken);
+            if (idToken) {
+                setIsLoading(false);
+                Alert.alert('Thông báo', 'Đăng nhập thành công!');
+                router.replace('/(tabs)');
+            }
+        } catch (error: any) {
+            setIsLoading(false);
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                console.log("Người dùng đã hủy đăng nhập");
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                console.log("Tiến trình đang chạy dưới nền");
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                console.log("Thiết bị không hỗ trợ Google Play Services");
+            } else {
+                console.log("Lỗi đăng nhập chi tiết:", error);
+            }
             Alert.alert('Lỗi', error.message);
         }
     };
@@ -70,7 +108,7 @@ export default function Login() {
                 </View>
 
                 <View className="w-[80%] items-center gap-5">
-                    <TouchableOpacity className="flex-row h-[50px] w-full bg-[#F9FAFB] rounded-[10px] border-2 border-[#E0E0E0] items-center justify-center" onPress={() => handleSocialLogin('Google')}>
+                    <TouchableOpacity className="flex-row h-[50px] w-full bg-[#F9FAFB] rounded-[10px] border-2 border-[#E0E0E0] items-center justify-center" onPress={() => handleGoogleLogin()}>
                         <AntDesign name="google" size={20} color="black" />
                         <Text className="ml-2.5 font-semibold text-[#333]">Đăng nhập với Google</Text>
                     </TouchableOpacity>

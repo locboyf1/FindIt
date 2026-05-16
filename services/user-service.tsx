@@ -1,6 +1,6 @@
 import { auth, db, storage } from "@/configs/firebase-config";
-import { createUserWithEmailAndPassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword, updatePassword, updateProfile } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, serverTimestamp, writeBatch } from "firebase/firestore";
+import { createUserWithEmailAndPassword, EmailAuthProvider, GoogleAuthProvider, reauthenticateWithCredential, signInWithCredential, signInWithEmailAndPassword, updatePassword, updateProfile } from "firebase/auth";
+import { doc, getDoc, serverTimestamp, setDoc, writeBatch } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { updateUserInPost } from "./post-service";
 import { formatTime, uploadImage } from "./utilities-service";
@@ -25,7 +25,7 @@ export const registerAccount = async (data: {
         }
         const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
         try {
-            const docRef = await addDoc(collection(db, 'users'), {
+            const docRef = await setDoc(doc(db, 'users', userCredential.user.uid), {
                 userName: data.userName,
                 email: data.email,
                 userId: userCredential.user.uid || '',
@@ -197,5 +197,32 @@ export const getUserById = async (userId: string) => {
     } catch (error) {
         console.log("Có lỗi khi lấy thông tin người dùng: ", error);
         throw new Error('Lỗi khi lấy thông tin người dùng');
+    }
+}
+
+export const loginWithGoogle = async (idToken: string) => {
+    try {
+        const credential = GoogleAuthProvider.credential(idToken);
+        const userCredential = await signInWithCredential(auth, credential);
+        const user = userCredential.user;
+
+        // const userDoc = await getUserById(user.uid);
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+            await setDoc(userRef, {
+                userName: user.displayName,
+                email: user.email,
+                userId: user.uid,
+                isBanned: false,
+                role: 'user',
+                createdAt: serverTimestamp(),
+                userAvatar: user.photoURL,
+            });
+        }
+        return user;
+    } catch (error) {
+        console.log("Có lỗi khi đăng nhập bằng Google: ", error);
+        throw error;
     }
 }

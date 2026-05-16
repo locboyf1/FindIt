@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "FindIt",
-    "slug": "FindIt",
+    "slug": "findit",
+    "owner": "boy37f1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -18,9 +19,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.anonymous.findit",
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.FindIt"
+      "package": "com.anonymous.findit"
     },
     "web": {
       "output": "static",
@@ -40,11 +43,19 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "609f300e-8cbc-4f50-9dbd-a8adf4ea1a75"
+      }
     }
   }
 }
