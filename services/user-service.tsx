@@ -1,4 +1,5 @@
 import { auth, db, storage } from "@/configs/firebase-config";
+import { googleConfig } from "@/configs/google-config";
 import { createUserWithEmailAndPassword, EmailAuthProvider, GoogleAuthProvider, reauthenticateWithCredential, signInWithCredential, signInWithEmailAndPassword, updatePassword, updateProfile } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc, writeBatch } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
@@ -33,6 +34,7 @@ export const registerAccount = async (data: {
                 role: 'user',
                 createdAt: serverTimestamp(),
                 userAvatar: null,
+                accountType: 'email',
             });
         } catch (error) {
             console.log(error);
@@ -200,29 +202,41 @@ export const getUserById = async (userId: string) => {
     }
 }
 
-export const loginWithGoogle = async (idToken: string) => {
+export const loginWithGoogle = async () => {
+    const { GoogleSignin } = require('@react-native-google-signin/google-signin');
+    
     try {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        const idToken = userInfo.data?.idToken;
         const credential = GoogleAuthProvider.credential(idToken);
         const userCredential = await signInWithCredential(auth, credential);
         const user = userCredential.user;
 
-        // const userDoc = await getUserById(user.uid);
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
-        if (!userDoc.exists()) {
+        const userDoc = await getUserById(user.uid);
+        const userRef = doc(db, 'users', user.uid);
+        if (!userDoc) {
             await setDoc(userRef, {
                 userName: user.displayName,
                 email: user.email,
-                userId: user.uid,
                 isBanned: false,
                 role: 'user',
                 createdAt: serverTimestamp(),
                 userAvatar: user.photoURL,
+                'accountType': 'google',
             });
         }
         return user;
-    } catch (error) {
+    } catch (error: any) {
         console.log("Có lỗi khi đăng nhập bằng Google: ", error);
-        throw error;
+        throw new Error('Lỗi khi đăng nhập bằng Google, vui lòng thử lại');
     }
+}
+
+export const googleConfigure = async () => {
+    const { GoogleSignin } = require('@react-native-google-signin/google-signin');
+    GoogleSignin.configure({
+        webClientId: googleConfig.webClientId,
+        offlineAccess: true,
+    });
 }
